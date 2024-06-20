@@ -26,6 +26,9 @@ export default {
         '8xl': '6rem',      // 96px
         '9xl': '8rem',      // 128px
       },
+      colors: {
+        primary: "#1A56DB",
+      },
       },
     },
   plugins: [
