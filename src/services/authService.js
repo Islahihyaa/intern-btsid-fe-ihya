@@ -7,8 +7,8 @@ export const register = async (userData) => {
     console.log("register", response);
     return response.data;
   } catch (error) {
-    console.log("Error register", error);
-    throw error;
+    console.log("Error register", error.response.data);
+    throw error.response.data;
   }
 };
 
@@ -19,7 +19,7 @@ export const login = async (userData) => {
     console.log("login", response);
     return response.data;
   } catch (error) {
-    console.log("Error login", error);
-    throw error;
+    console.log("Error login", error.response.data);
+    throw error.response.data;
   }
 };
