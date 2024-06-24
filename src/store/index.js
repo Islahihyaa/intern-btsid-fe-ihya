@@ -1,36 +1,37 @@
-// store/index.js
-import Vue from "vue";
-import Vuex from "vuex";
+import { createStore } from 'vuex';
+import { login as loginService } from '@/services/authService';
 
-Vue.use(Vuex);
-
-export default new Vuex.Store({
+const store = createStore({
   state: {
-    user: null,
-    isLoggedIn: false,
+    userId: null,
   },
   mutations: {
-    setUser(state, userData) {
-      state.user = userData;
-      state.isLoggedIn = !!user;
-      console.log("User set in Vuex:", userData);
+    setUser(state, userId) {
+      state.userId = userId;
+      console.log("User set in Vuex:", userId);
     },
     clearUser(state) {
-      state.user = null;
-      state.isLoggedIn = false;
+      state.userId = null;
     },
   },
   actions: {
-    login({ commit }, userData) {
-      commit("setUser", userData);
-      console.log("User logged in with ID:", userData.userId);
+    async login({ commit }, userData) {
+      try {
+        const user = await loginService(userData);
+        commit('setUser', user.userId);
+        return user;  
+      } catch (error) {
+        console.error("Error during login:", error);
+        throw error;
+      }
     },
     logout({ commit }) {
-      commit("clearUser");
+      commit('clearUser');
     },
   },
   getters: {
-    isLoggedIn: (state) => state.isLoggedIn,
-    user: (state) => state.user,
+    userId: (state) => state.userId,
   },
 });
+
+export default store;
