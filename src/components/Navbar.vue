@@ -18,7 +18,7 @@
                 </li>
             </ul>
             <button @click="() => TogglePopup('buttonTriggers')" class="btn btn-info text-sm px-4 py-1">Create</button>
-            <Card v-if="cardTriggers.buttonTriggers" :TogglePopup="() => TogglePopup('buttonTriggers')" />
+            <BoardCard v-if="cardTriggers.buttonTriggers" :TogglePopup="() => TogglePopup('buttonTriggers')" />
         </div>
         <div class="flex-none gap-2">
             <div class="form-control">
@@ -47,18 +47,13 @@
 </template>
 
 <script>
-import Card from '@/components/Card.vue'
+import BoardCard from '@/components/BoardCard.vue'
 import { ref } from 'vue'
 
 export default {
     name: "Navbar",
     components: {
-        Card
-    },
-    methods: {
-        createCard() {
-            this.$emit('createCard')
-        }
+        BoardCard
     },
     setup() {
         const cardTriggers =  ref ({
