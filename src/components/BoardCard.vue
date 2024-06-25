@@ -30,15 +30,13 @@
 
 <script setup>
 import { ref } from "vue";
-import { useRouter } from "vue-router";
 import { createBoard } from "@/services/boardService";
-import { useBoardStore } from "../store/board";
+import { useBoardStore } from "@/store/board";
 
 const boardTitle = ref("");
 const popupVisible = ref(true);
 
 const boardStore = useBoardStore();
-const router = useRouter(); 
 
 const handleBoard = async () => {
   try {
@@ -50,6 +48,8 @@ const handleBoard = async () => {
     };
 
     const accessToken = localStorage.getItem("token");
+    console.log(accessToken);
+    console.log(boardData);
 
     if (!accessToken || !userId) {
       throw new Error("Access token or userId not found");
@@ -57,18 +57,12 @@ const handleBoard = async () => {
 
     const response = await createBoard(boardData, accessToken);
 
-    // add board data to local storage
     boardStore.addBoard(boardData);
-    
-    const savedBoards = JSON.parse(localStorage.getItem("boards")) || [];
-    savedBoards.push(boardData);
-    localStorage.setItem("boards", JSON.stringify(savedBoards));
-    //end
 
+    console.log("Board Created", boardStore);
     console.log("Board Created", response);
     popupVisible.value = false;
   } catch (error) {
-    console.error("Error creating board:", error);
     if (error.error) {
       console.log("Error creating board:", error.error);
     } else {

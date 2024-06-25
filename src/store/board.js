@@ -1,11 +1,17 @@
+// store/board.js
 import { defineStore } from "pinia";
-import { ref } from "vue";
 
-export const useBoardStore = defineStore('board', () => {
-    const board = ref ([
-    ])
-    
-    return {
-        board
-    }
-})
+export const useBoardStore = defineStore("board", {
+  state: () => ({
+    boards: JSON.parse(localStorage.getItem("boards")) || [],
+  }),
+  actions: {
+    addBoard(board) {
+      this.boards.push(board);
+      this.saveBoardsToLocalStorage();
+    },
+    saveBoardsToLocalStorage() {
+      localStorage.setItem("boards", JSON.stringify(this.boards));
+    },
+  },
+});

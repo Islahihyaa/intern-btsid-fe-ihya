@@ -19,7 +19,7 @@
         <div class="py-4 px-2">
           <p>Your Boards</p>
         </div>
-        <li v-for="board in boardStore.board" :key="board.boardId">
+        <li v-for="board in boards" :key="board.boardId">
           <a>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -35,8 +35,9 @@
                 d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
               />
             </svg>
-            {{ board.boardId }}
-            {{ board.boardTitle }}
+            <a @click="showDetailBoard">
+              {{ board.board_title }}
+            </a>
           </a>
         </li>
       </ul>
@@ -45,7 +46,33 @@
 </template>
 
 <script setup>
-import { useBoardStore } from "../store/board";
+import { getBoard } from '@/services/boardService';
+import { onMounted } from 'vue';
+import { ref } from 'vue';
 
-const boardStore = useBoardStore();
+const boards = ref([]);
+
+const getBoardData = async () => {
+  try {
+    const accessToken = localStorage.getItem("token");
+
+    const response = await getBoard(accessToken);
+
+    boards.value = response.data.boards;
+
+    console.log("Boards data:", boards.value);
+    console.log('response on sidebar', response)
+    
+  } catch (error) {
+    console.error("Error fetching boards:", error.error);
+  }
+};
+
+const showDetailBoard = async () => {
+  
+}
+
+onMounted(() => {
+  getBoardData(); 
+});
 </script>
