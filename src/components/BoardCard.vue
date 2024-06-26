@@ -48,23 +48,25 @@ const handleBoard = async () => {
     };
 
     const accessToken = localStorage.getItem("token");
-    console.log(accessToken);
-    console.log(boardData);
 
     if (!accessToken || !userId) {
       throw new Error("Access token or userId not found");
     }
 
-    const response = await createBoard(boardData, accessToken);
+    console.log(accessToken)
+
+    await createBoard(boardData, accessToken);
+    // const responseBoard = await getBoard(accessToken);
 
     boardStore.addBoard(boardData);
 
-    console.log("Board Created", boardStore);
-    console.log("Board Created", response);
+    // console.log("Board Created", boardStore);
+    // console.log("Board Created", response);
+    
     popupVisible.value = false;
   } catch (error) {
-    if (error.error) {
-      console.log("Error creating board:", error.error);
+    if (error) {
+      console.log("Error creating board:", error);
     } else {
       console.log("Unknown error occurred while creating board.");
     }
