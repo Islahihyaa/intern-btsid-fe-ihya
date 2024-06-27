@@ -1,11 +1,4 @@
 <template>
-  <!-- <pre>
-
-    {{ $state.lists }}
-    
-  </pre>
-  {{  listComputed.lists }} -->
-  <!-- {{  listTitles }} -->
   <button
     v-if="!isFormVisible"
     @click="showForm"
@@ -29,13 +22,9 @@
       <p class="ml-2 text-sm text-white">Add List</p>
     </div>
   </button>
-  <div class="flex items-center">
-    <!-- <div
-      v-for="title in listTitles"
-      :key="title"
-      class="w-64 mr-3 my-2 py-2 px-4 rounded-lg shadow-md bg-black bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20"
-    > -->
-    <!-- {{  $state.lists  }} -->
+
+  <!-- Create List -->
+  <div class="flex items-baseline">
     <div
       v-for="list in listComputed.lists"
       :key="list.listId"
@@ -44,13 +33,61 @@
       <div class="mb-4 text-lg">
         <label for="title">{{ list.listTitle }}</label>
       </div>
+
       <div
-        v-if="!taskHidden"
-        class=""
+        v-for="task in list.tasks"
+        :key="task.taskId"
+        class="w-full mt-1 py-2 px-4 text-lg rounded-lg shadow-md bg-black bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20"
       >
-          <input type="text" class="w-full mr-3 my-6 py-2 px-4 rounded-lg shadow-md bg-white bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20" />
+        <p>{{ task.taskTitle }}</p>
       </div>
-      <button @click="handleTask" class="btn btn-ghost w-full">Add Task</button>
+
+      <form @submit.prevent="formTask(list.listId)">
+        <div v-if="selectedListId === list.listId">
+          <input
+            type="text"
+            v-model="taskTitle"
+            placeholder="Enter task..."
+            class="w-full mb-4 mt-6 py-2 px-4 text-sm rounded-lg shadow-md bg-white bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20 focus:outline-none focus:ring focus:border-blue-500"
+          />
+        </div>
+        <div class="flex items-center">
+          <button
+            v-if="selectedListId === list.listId"
+            type="submit"
+            class="btn btn-ghost"
+          >
+            Add Task
+          </button>
+          <button
+            v-if="selectedListId === list.listId"
+            @click="close"
+            class="btn btn-ghost"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="size-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6 18 18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+        <button
+          v-if="selectedListId !== list.listId"
+          @click="ButtonTask(list.listId)"
+          class="btn btn-ghost w-full"
+        >
+          Add Task
+        </button>
+      </form>
     </div>
     <div
       v-if="isFormVisible"
@@ -62,14 +99,10 @@
             <label for="title">Title List</label>
             <input
               type="text"
-              placeholder="Title"
               v-model="listTitle"
               class="w-full px-4 py-2 my-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-500"
             />
           </div>
-          <!-- <div v-for="list in listComputed.lists" :key="list.listId">
-            {{ list.listTitle }}
-          </div> -->
           <div class="card-actions justify-end">
             <button class="btn btn-ghost" @click="cancelForm">Cancel</button>
             <button type="submit" class="btn btn-primary">Create List</button>
@@ -82,20 +115,31 @@
 
 <script setup>
 import { createList } from "@/services/listService";
+import { createTask } from "@/services/taskService";
 import { useBoardStore } from "@/store/board";
-import { ref, computed } from "vue";
+import { ref, computed, onBeforeMount } from "vue";
+import { useRoute } from "vue-router";
+
 
 const listTitle = ref("");
 const isFormVisible = ref(false);
-const taskHidden = ref(true);
+const selectedListId = ref(null);
+const taskTitle = ref("");
+const buttonTaskHidden = ref(true);
+
+const emit = defineEmits(["cancel"]);
+const props = defineProps({
+  TogglePopup: Function,
+});
 
 const { $state } = useBoardStore();
 
+const boardStore = useBoardStore();
+
 const handleList = async () => {
-  const boardIdData = $state.boardSelected;
+  const boardIdData = boardStore.boardSelected;
 
   try {
-    // const boardStore = useBoardStore();
     const listData = {
       listTitle: listTitle.value,
       boardId: boardIdData,
@@ -103,8 +147,6 @@ const handleList = async () => {
     const accessToken = localStorage.getItem("token");
 
     await createList(listData, accessToken);
-
-    // boardStore.addList(listData);
 
     isFormVisible.value = false;
     listTitle.value = "";
@@ -117,10 +159,11 @@ const listComputed = computed(() => {
   return $state.boards.find((item) => item.boardId === $state.boardSelected);
 });
 
-// const listTitles = computed(() => {
-//   const lists = listComputed.value?.lists || [];
-//   return lists.map((list) => list.listTitle);
-// });
+const taskComputed = computed(() => {
+  return listComputed.lists.find(
+    (item) => item.ListId === $state.selectedListId
+  );
+});
 
 const showForm = () => {
   isFormVisible.value = true;
@@ -131,38 +174,51 @@ const cancelForm = () => {
   listTitle.value = "";
 };
 
-const handleTask = () => {
-  taskHidden.value = false
+const ButtonTask = (listId) => {
+  if (selectedListId.value === listId) {
+    selectedListId.value = null;
+    buttonTaskHidden.value = true;
+  } else {
+    selectedListId.value = listId;
+    buttonTaskHidden.value = false;
+  }
 };
 
-// export default {
-//   name: "ListCard",
-//   props: ["TogglePopup"],
-//   data() {
-//     return {
-//       listTitle: "",
-//     };
-//   },
-//   methods: {
-//     async handleList() {
-//       try {
-//         const listData = {
-//           listTitle: this.listTitle,
-//           authorId: "f88d04c3-0b54-456f-944e-e48889535190",
-//           boardId: "972d92e1-d362-4149-a6c6-4e494caf47be",
-//         };
-//         const accessToken = localStorage.getItem("token");
-//         const response = await createList(listData, accessToken);
-//         console.log("List Created", response);
-//       } catch (error) {
-//         if (error.error) {
-//           console.log("error create list");
-//         }
-//       }
-//     },
-//     cancel() {
-//       this.$emit("cancel"), this.TogglePopup();
-//     },
-//   },
-// };
+const close = () => {
+  taskTitle.value = "";
+  selectedListId.value = null;
+};
+
+const formTask = async (listId) => {
+  try {
+    const taskData = {
+      taskTitle: taskTitle.value,
+      listId: listId,
+    };
+    console.log("task data", taskData);
+    console.log(" data", listId);
+
+    const accessToken = localStorage.getItem("token");
+
+    await createTask(taskData, accessToken);
+    boardStore.addBoard(taskData);
+    taskTitle.value = "";
+  } catch (error) {
+    console.log("error create task", error);
+  }
+};
+
+//
+const route = useRoute();
+const board = ref(null)
+const { id } = route.params;
+
+// onBeforeMount(async() => {
+//   board.value = boardStore.boards.find((item) => item.boardSelected === id)
+// })
+
+// console.log('asd', boardStore.boardSelected)
+// console.log('asdasd', board.value)
+// //
+
 </script>
