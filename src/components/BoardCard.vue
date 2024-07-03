@@ -11,10 +11,19 @@
             <label for="title">Title Board</label>
             <input
               type="text"
-              placeholder="Title"
+              placeholder="Enter title here ..."
               v-model="boardTitle"
               class="w-full px-4 py-2 my-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-500"
             />
+            <div v-if="errorMessage">
+              <p
+                v-for="(msg, index) in errorMessage"
+                :key="index"
+                class="text-red-500 text-xs px-2 py-1 flex justify-center mb-3"
+              >
+                {{ msg }}
+              </p>
+            </div>
           </div>
           <div class="card-actions justify-end">
             <button type="button" class="btn btn-ghost" @click="closePopup">
@@ -32,6 +41,8 @@
 import { ref } from "vue";
 import { createBoard } from "@/services/boardService";
 import { useBoardStore } from "@/store/board";
+
+const errorMessage = ref([]);
 
 const boardTitle = ref("");
 const popupVisible = ref(true);
@@ -53,29 +64,28 @@ const handleBoard = async () => {
       throw new Error("Access token or userId not found");
     }
 
-    console.log(accessToken)
-
     await createBoard(boardData, accessToken);
-    // const responseBoard = await getBoard(accessToken);
 
     boardStore.addBoard(boardData);
 
-    // console.log("Board Created", boardStore);
-    // console.log("Board Created", response);
-    
     popupVisible.value = false;
   } catch (error) {
-    if (error) {
-      console.log("Error creating board:", error);
+    if (error.error.message) {
+      errorMessage.value = [formatErrorMessage(error.error.message)];
     } else {
       console.log("Unknown error occurred while creating board.");
     }
   }
 };
 
+const formatErrorMessage = (message) => {
+  if (message.includes("Board title")) {
+    return "Board title cannot be blank";
+  }
+  return "Create board failed: " + message;
+};
+
 const closePopup = () => {
   popupVisible.value = false;
 };
 </script>
-
-<style scoped></style>
