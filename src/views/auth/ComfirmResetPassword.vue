@@ -6,7 +6,9 @@
       class="w-full max-w-md p-8 rounded-lg shadow-md bg-white bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20 border border-gray-100"
     >
       <div class="flex justify-center items-center mb-8">
-        <h1 class="font-sans text-3xl font-semibold text-white">Login</h1>
+        <h1 class="font-sans text-3xl font-semibold text-white">
+          Confirm Reset Password
+        </h1>
       </div>
 
       <div v-if="errorMessage.length > 0">
@@ -19,91 +21,60 @@
         </div>
       </div>
 
-      <form @submit.prevent="handleLogin">
+      <form @submit.prevent="handleConfirmResetPassword">
         <div class="mb-4 text-lg">
           <input
-            type="email"
-            placeholder="Email"
-            v-model="email"
+            type="password"
+            placeholder="New Password"
+            v-model="newPassword"
             class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-500"
           />
         </div>
         <div class="mb-4 text-lg">
           <input
             type="password"
-            placeholder="Password"
-            v-model="password"
+            placeholder="Confirm New Password"
+            v-model="newPasswordConfirmation"
             class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-500"
           />
-        </div>
-        <div>
-          <RouterLink to="/reset-password" class="text-blue-400">
-            Forget Password
-          </RouterLink>
         </div>
 
         <button
           type="submit"
           class="w-full px-4 py-2 text-lg my-4 bg-primary text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring"
         >
-          Login
+          Reset Password
         </button>
       </form>
-
-      <p class="text-sm text-gray-100 mt-4">
-        <span>Don't have an account?</span>
-        <RouterLink to="/register" class="text-blue-500">
-          Register Here
-        </RouterLink>
-      </p>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import { useRouter } from "vue-router";
-import { login } from "@/services/authService";
+import { useRoute, useRouter } from "vue-router";
+import { confirmResetPassword } from "@/services/authService";
 
-const email = ref("");
-const password = ref("");
+const newPassword = ref("");
+const newPasswordConfirmation = ref("");
 const errorMessage = ref([]);
+const route = useRoute();
 const router = useRouter();
 
-const handleLogin = async () => {
+const handleConfirmResetPassword = async () => {
   try {
-    const userData = {
-      email: email.value,
-      password: password.value,
+    const urlResetToken = route.params.urlResetToken;
+    const passwordConfirmationData = {
+      newPassword: newPassword.value,
+      newPasswordConfirmation: newPasswordConfirmation.value,
     };
 
-    const response = await login(userData);
-    console.log("Logged in user ID:", response.userId);
+    await confirmResetPassword(passwordConfirmationData, urlResetToken);
 
-    const accessToken = localStorage.getItem("token");
-
-    if (!accessToken) {
-      console.log("Error login");
-    } else {
-      router.push("/board");
-    }
+    router.push("/login");
   } catch (error) {
-    if (error.error && error.error.message) {
-      errorMessage.value = [formatErrorMessage(error.error.message)];
-    } else {
-      console.log("Error:", error);
-      errorMessage.value = [
-        "An error occurred while logging in. Please try again later.",
-      ];
-    }
+    errorMessage.value = ["Error. Please try again later."];
   }
-};
-
-const formatErrorMessage = (message) => {
-  if (message.includes("Invalid email")) {
-    return "Invalid Email Format";
-  }
-  return "Login failed: " + message;
 };
 </script>
 

@@ -64,15 +64,16 @@ const TogglePopup = (trigger) => {
 const handleLogout = async () => {
   try {
     const accessToken = localStorage.getItem("token");
+    console.log(accessToken)
 
     if (!accessToken) {
       throw new Error("Access token not found");
     }
 
+    await logout(accessToken);
+
     localStorage.removeItem("token");
     localStorage.removeItem("userData");
-
-    await logout(accessToken);
 
     router.push("/login");
   } catch (error) {
