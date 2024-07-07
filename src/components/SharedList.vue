@@ -4,7 +4,7 @@
   >
     <div class="flex justify-between items-center">
       <div class="text-lg text-white">
-        {{ boardComputed ? boardComputed.boardTitle : "" }}
+        {{ boardComputed ? boardComputed.board.boardTitle : "" }}
       </div>
       <div>
         <button
@@ -40,9 +40,18 @@
           d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
         />
       </svg>
-      <p class="ml-2 text-sm text-white">Add List</p>
+      <p class="ml-2 text-sm text-white">(shared) Add List</p>
     </div>
   </button>
+
+  <!-- <pre>
+      {{ $state.sharedBoards }}
+    </pre
+  > -->
+  <pre>
+      {{ route.params.boardSlug }}
+    </pre
+  >
 
   <div class="m-4 overflow-x-auto h-screen">
     <div class="flex items-baseline">
@@ -57,15 +66,15 @@
 
         <div>
           <!-- <draggable v-model="$state.lists" group="tasks" @end="onEnd">
-          <div
-            v-for="list in $state.lists"
-            :key="list.listId"
-            draggable="true"
-            class="w-full mt-1 py-2 px-4 text-lg rounded-lg shadow-md bg-black bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20"
-          >
-            <p>{{ list.listTitle }}</p>
-          </div>
-        </draggable> -->
+            <div
+              v-for="list in $state.lists"
+              :key="list.listId"
+              draggable="true"
+              class="w-full mt-1 py-2 px-4 text-lg rounded-lg shadow-md bg-black bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20"
+            >
+              <p>{{ list.listTitle }}</p>
+            </div>
+          </draggable> -->
         </div>
 
         <div
@@ -206,16 +215,16 @@ const boardStore = useBoardStore();
 const { $state, setBoardAndSlug } = boardStore;
 
 const boardComputed = computed(() => {
-  return $state.boards.find(
-    (item) => item.boardSlug === route.params.boardSlug
+  return boardStore.$state.sharedBoards.find(
+    (item) => item.board.boardSlug === route.params.boardSlug
   );
 });
 
 const listComputed = computed(() => $state.lists);
 
 const handleList = async () => {
-  const boardIdData = boardComputed.value.boardId;
-  console.log("board id data", boardComputed.value.boardId);
+  const boardIdData = boardComputed.value.board.boardId;
+  console.log("board id data", boardComputed.value.board.boardId);
 
   try {
     const listData = {
