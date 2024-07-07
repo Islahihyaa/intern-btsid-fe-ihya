@@ -74,9 +74,9 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !isAuthenticated()) {
-    next("/login"); // Arahkan ke halaman login jika tidak authenticated
+    next("/login");
   } else {
-    next(); // Lanjutkan navigasi ke rute yang diminta
+    next();
   }
 });
 

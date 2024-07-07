@@ -1,17 +1,43 @@
-// store/board.js
 import { defineStore } from "pinia";
 
 export const useBoardStore = defineStore("board", {
   state: () => ({
-    boards: JSON.parse(localStorage.getItem("boards")) || [],
+    boards: [],
+    lists: [],
+    tasks: [],
+    sharedBoards: [],
+    boardSelected: "",
+    slugSelected: "",
   }),
+
   actions: {
     addBoard(board) {
       this.boards.push(board);
-      this.saveBoardsToLocalStorage();
     },
-    saveBoardsToLocalStorage() {
-      localStorage.setItem("boards", JSON.stringify(this.boards));
+    setBoardSelected(newValue) {
+      this.boardSelected = newValue;
+    },
+    setSlugSelected(newValue) {
+      this.slugSelected = newValue;
+    },
+    addList(list) {
+      if (!this.lists) {
+        this.lists = [];
+      }
+      this.lists.push(list);
+    },
+    addTask({ listId, task }) {
+      const list = this.lists.find((list) => list.listId === listId);
+      if (list) {
+        list.tasks.push(task);
+      }
+    },
+    addShareBoard(shareBoard) {
+      this.sharedBoards.push(shareBoard);
+    },
+    setBoardAndSlug(boardId, boardSlug) {
+      this.boardSelected = boardId;
+      this.slugSelected = boardSlug;
     },
   },
 });

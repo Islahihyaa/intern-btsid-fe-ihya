@@ -5,12 +5,8 @@
         <div class="py-4 px-2 text-white text-sm mb-1">
           <p>Your Boards</p>
         </div>
-        <div class=" overflow-y-auto">
-          <li
-            v-for="board in $state.boards"
-            :key="board.boardId"
-            class="m-2"
-          >
+        <div class="overflow-y-auto">
+          <li v-for="board in $state.boards" :key="board.boardId" class="m-2">
             <router-link :to="{ path: `/board/${board.boardSlug}` }">
               <div
                 @click="showDetailBoard(board.boardId, board.boardSlug)"
@@ -24,19 +20,46 @@
           </li>
         </div>
       </ul>
+      <ul class="menu w-72 flex-1">
+        <div class="py-4 px-2 text-white text-sm mb-1">
+          <p>Share Boards</p>
+        </div>
+        <div class="overflow-y-auto">
+          <li
+            v-for="sharedBoard in $state.sharedBoards"
+            :key="sharedBoard.board.boardId"
+            class="m-2"
+          >
+            <router-link
+              :to="{ path: `/shared-board/${sharedBoard.board.boardSlug}` }"
+            >
+              <div
+                @click="
+                  showDetailBoard(
+                    sharedBoard.board.boardId,
+                    sharedBoard.board.boardSlug
+                  )
+                "
+                class="m-2"
+              >
+                <div class="text-md">
+                  {{ sharedBoard.board.boardTitle }}
+                </div>
+              </div>
+            </router-link>
+          </li>
+        </div>
+      </ul>
     </div>
   </div>
 </template>
 
 <script setup>
-import { getBoard } from "@/services/boardService";
+import { getBoard, getSharedBoard } from "@/services/boardService";
 import { onMounted } from "vue";
-import { ref } from "vue";
 import { useBoardStore } from "@/store/board";
 
 const { $state, setBoardAndSlug } = useBoardStore();
-const menuHidden = ref(false);
-const emit = defineEmits(["board-selected"]);
 
 const getBoardData = async () => {
   try {
@@ -52,8 +75,19 @@ const showDetailBoard = (boardId, boardSlug) => {
   setBoardAndSlug(boardId, boardSlug);
 };
 
+const getSharedBoardData = async () => {
+  try {
+    const accessToken = localStorage.getItem("token");
+
+    await getSharedBoard(accessToken);
+  } catch (error) {
+    console.error("Error fetching boards:", error);
+  }
+};
+
 onMounted(() => {
   getBoardData();
+  getSharedBoardData();
 });
 </script>
 
