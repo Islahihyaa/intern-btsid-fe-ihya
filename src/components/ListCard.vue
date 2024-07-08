@@ -55,28 +55,26 @@
           <label for="title">{{ list.listTitle }}</label>
         </div>
 
-        <div>
-          <!-- <draggable v-model="$state.lists" group="tasks" @end="onEnd">
-          <div
-            v-for="list in $state.lists"
-            :key="list.listId"
-            draggable="true"
-            class="w-full mt-1 py-2 px-4 text-lg rounded-lg shadow-md bg-black bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20"
-          >
-            <p>{{ list.listTitle }}</p>
-          </div>
+        <!-- <draggable v-model="list.tasks" group="tasks" @end="onEnd">
+          <template #item="{ element }">
+            <div
+              class="flex-shrink-0 w-full mt-1 py-2 px-4 text-lg rounded-lg shadow-md bg-black bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20"
+            >
+              <p>{{ element.taskTitle }}</p>
+            </div>
+          </template>
         </draggable> -->
-        </div>
 
         <div
           v-for="task in list.tasks"
           :key="task.taskId"
           draggable="true"
+          @dragstart="handleDragStart"
+          @dragend="handeDragEnd"
           class="flex-shrink-0 w-full mt-1 py-2 px-4 text-lg rounded-lg shadow-md bg-black bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20"
         >
           <p>{{ task.taskTitle }}</p>
         </div>
-
         <form @submit.prevent="formTask(list.listId)">
           <div v-if="selectedListId === list.listId">
             <input
@@ -198,6 +196,13 @@ const cardTriggers = ref({
   buttonTriggers: false,
 });
 
+const handleDragStart = () => {
+  console.log("drag start");
+};
+const handeDragEnd = () => {
+  console.log("drag end");
+};
+
 const TogglePopup = (trigger) => {
   cardTriggers.value[trigger] = !cardTriggers.value[trigger];
 };
@@ -215,7 +220,6 @@ const listComputed = computed(() => $state.lists);
 
 const handleList = async () => {
   const boardIdData = boardComputed.value.boardId;
-  console.log("board id data", boardComputed.value.boardId);
 
   try {
     const listData = {
@@ -226,7 +230,6 @@ const handleList = async () => {
 
     const response = await createList(listData, accessToken);
     boardStore.addList(response);
-    console.log("response on card", response);
     isFormVisible.value = false;
     listTitle.value = "";
   } catch (error) {
@@ -249,9 +252,6 @@ const getListData = async () => {
     const response = await getList(accessToken, boardSlug);
     const lists = response.data;
     $state.lists = lists;
-
-    console.log("get lists data", response.data);
-    console.log("response list data", response.data);
   } catch (error) {
     console.error("Error fetching boards:", error);
   }
@@ -308,9 +308,9 @@ const formTask = async (listId) => {
 
     const response = await createTask(taskData, accessToken);
     const createdTask = response.data;
+    console.log('ppp', createdTask)
 
     boardStore.addTask({ listId, task: createdTask });
-
     taskTitle.value = "";
   } catch (error) {
     if (error.error && error.error.message) {
@@ -322,15 +322,16 @@ const formTask = async (listId) => {
   }
 };
 
-// const onEnd = async (event) => {
-//   try {
-//     const accessToken = localStorage.getItem("token");
-//     await updateTaskOrder(event.moved, accessToken);
-//     getListData(); // Refresh lists after updating task order
-//   } catch (error) {
-//     console.error("Error updating task order:", error);
-//   }
-// };
+const onEnd = async (event) => {
+  try {
+    const accessToken = localStorage.getItem("token");
+    const { listId, taskId } = event.item.__draggable_context.element;
+    await updateTaskOrder({ taskId, listId }, accessToken);
+    getListData();
+  } catch (error) {
+    console.error("Error updating task order:", error);
+  }
+};
 
 const formatErrorMessage = (message) => {
   if (message.includes("Validation error: list")) {

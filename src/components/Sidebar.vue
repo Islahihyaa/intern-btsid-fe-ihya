@@ -72,6 +72,8 @@ const getBoardData = async () => {
 };
 
 const showDetailBoard = (boardId, boardSlug) => {
+  console.log('board id', boardId)
+  console.log('board slug', boardSlug)
   setBoardAndSlug(boardId, boardSlug);
 };
 
@@ -79,7 +81,9 @@ const getSharedBoardData = async () => {
   try {
     const accessToken = localStorage.getItem("token");
 
-    await getSharedBoard(accessToken);
+    const response = await getSharedBoard(accessToken);
+    console.log("response get shared board", response);
+    $state.share
   } catch (error) {
     console.error("Error fetching boards:", error);
   }

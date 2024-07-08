@@ -15,9 +15,9 @@
               v-model="collaboratorEmail"
               class="w-full px-4 py-2 my-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-500"
             />
-            <div v-if="errorMessage">
+            <div v-if="errorMessageShare">
               <p
-                v-for="(msg, index) in errorMessage"
+                v-for="(msg, index) in errorMessageShare"
                 :key="index"
                 class="text-red-500 text-xs px-2 py-1 flex justify-center mb-3"
               >
@@ -47,6 +47,7 @@ import { useRoute } from "vue-router";
 const popupVisible = ref(true);
 const route = useRoute();
 const collaboratorEmail = ref("");
+const errorMessageShare = ref([])
 
 const formShareBoard = async () => {
   const boardSlug = route.params.boardSlug;
@@ -56,12 +57,20 @@ const formShareBoard = async () => {
     };
     const accessToken = localStorage.getItem("token");
 
-    const response = await sharedBoard(emailData, accessToken, boardSlug);
+    await sharedBoard(emailData, accessToken, boardSlug);
 
-    console.log("response", response);
+    popupVisible.value = false;
   } catch (error) {
-    console.log("Unknown error", error);
+    if (error.error && error.error.message) {
+      errorMessageShare.value = [formatErrorMessage(error.error.message)];
+    } else {
+      console.log("Unknown error", error);
+    }
   }
+};
+
+const formatErrorMessage = (message) => {
+  return message;
 };
 
 const closePopup = () => {

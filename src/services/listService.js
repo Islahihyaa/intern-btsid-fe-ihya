@@ -3,7 +3,7 @@ import { useBoardStore } from "@/store/board";
 
 export const createList = async (listData, accessToken) => {
   try {
-    const { $state } = useBoardStore();
+    // const { $state } = useBoardStore();
     const response = await axiosInstance.post("/lists", listData, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -14,7 +14,6 @@ export const createList = async (listData, accessToken) => {
     // $state.lists = response.data;
 
     // console.log($state.lists)
-    console.log("list on service", response.data.data);
 
     return response.data.data;
   } catch (error) {
@@ -25,19 +24,13 @@ export const createList = async (listData, accessToken) => {
 
 export const getList = async (accessToken, boardSlug) => {
   try {
-    // const { $state } = useBoardStore();
     const response = await axiosInstance.get(`/lists/${boardSlug}`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
     });
 
-    console.log("get list response", response);
-    // const lists = response.data.data.map((board) => {
-    //   console.log(board.lists);
-    // });
-    // $state.lists = response.data.data;
-    // console.log("state list", lists);
+    console.log(response)
 
     return response.data;
   } catch (error) {

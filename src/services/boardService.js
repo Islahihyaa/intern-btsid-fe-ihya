@@ -44,7 +44,6 @@ export const sharedBoard = async (emailData, accessToken, boardSlug) => {
       }
     );
 
-    console.log("shared board response", response);
     return response.data;
   } catch (error) {
     throw error.response.data;
@@ -61,8 +60,6 @@ export const getSharedBoard = async (accessToken) => {
     });
 
     $state.sharedBoards = response.data.data;
-
-    console.log("get share boards", response.data.data);
 
     return response.data;
   } catch (error) {}

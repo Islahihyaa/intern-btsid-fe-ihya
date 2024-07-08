@@ -44,15 +44,6 @@
     </div>
   </button>
 
-  <!-- <pre>
-      {{ $state.sharedBoards }}
-    </pre
-  > -->
-  <pre>
-      {{ route.params.boardSlug }}
-    </pre
-  >
-
   <div class="m-4 overflow-x-auto h-screen">
     <div class="flex items-baseline">
       <div
@@ -260,7 +251,6 @@ const getListData = async () => {
     $state.lists = lists;
 
     console.log("get lists data", response.data);
-    console.log("response list data", response.data);
   } catch (error) {
     console.error("Error fetching boards:", error);
   }

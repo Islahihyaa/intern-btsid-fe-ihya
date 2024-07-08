@@ -8,6 +8,7 @@ export const useBoardStore = defineStore("board", {
     sharedBoards: [],
     boardSelected: "",
     slugSelected: "",
+    drags: [],
   }),
 
   actions: {
