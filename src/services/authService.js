@@ -1,5 +1,4 @@
 import axiosInstance from "@/axios";
-import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
 export const register = async (userData) => {
@@ -35,7 +34,23 @@ export const login = async (userData) => {
 
 export const isAuthenticated = () => {
   const accessToken = localStorage.getItem("token");
-  return !!accessToken;
+  if (!accessToken) {
+    return false;
+  }
+
+  try {
+    const decodedToken = jwtDecode(accessToken);
+    const currentTime = Date.now() / 1000;
+
+    if (decodedToken.exp < currentTime) {
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    return false;
+  }
 };
 
 export const logout = async (accessToken) => {
