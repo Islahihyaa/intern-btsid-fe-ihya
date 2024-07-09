@@ -40,26 +40,26 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: '/board/:boardSlug',
-    name: 'Board',
+    path: "/board/:boardSlug",
+    name: "Board",
     component: Home,
     children: [
       {
-        path: '',
-        name: 'ListCard',
+        path: "",
+        name: "ListCard",
         component: ListCard,
       },
     ],
     meta: { requiresAuth: true },
   },
   {
-    path: '/shared-board/:boardSlug',
-    name: 'SharedBoard',
+    path: "/shared-board/:boardSlug",
+    name: "SharedBoard",
     component: Home,
     children: [
       {
-        path: '',
-        name: 'SharedList',
+        path: "",
+        name: "SharedList",
         component: SharedList,
       },
     ],
@@ -74,6 +74,8 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !isAuthenticated()) {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userData");
     next("/login");
   } else {
     next();
