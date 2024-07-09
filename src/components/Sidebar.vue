@@ -1,5 +1,5 @@
 <template>
-  <div class="sidebar bg-base-200 h-full border-r-2 border-slate-600">
+  <div class="sidebar bg-base-200 border-r-2 border-slate-600  overflow-y-auto h-screen">
     <div class="flex flex-col">
       <ul class="menu w-72 flex-1">
         <div class="py-4 px-2 text-white text-sm mb-1">
@@ -72,8 +72,8 @@ const getBoardData = async () => {
 };
 
 const showDetailBoard = (boardId, boardSlug) => {
-  console.log('board id', boardId)
-  console.log('board slug', boardSlug)
+  console.log("board id", boardId);
+  console.log("board slug", boardSlug);
   setBoardAndSlug(boardId, boardSlug);
 };
 
@@ -83,7 +83,7 @@ const getSharedBoardData = async () => {
 
     const response = await getSharedBoard(accessToken);
     console.log("response get shared board", response);
-    $state.share
+    $state.share;
   } catch (error) {
     console.error("Error fetching boards:", error);
   }
