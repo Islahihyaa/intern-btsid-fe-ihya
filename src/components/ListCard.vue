@@ -49,32 +49,25 @@
       <div
         v-for="list in listComputed"
         :key="list.listId"
+        :data-list-id="list.listId"
         class="flex-shrink-0 w-72 mr-3 my-6 py-2 px-4 rounded-lg shadow-md bg-black bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20"
       >
         <div class="mb-4 text-lg">
           <label for="title">{{ list.listTitle }}</label>
         </div>
 
-        <!-- <draggable v-model="list.tasks" group="tasks" @end="onEnd">
+        <draggable v-model="list.tasks" group="tasks" @end="onEnd">
           <template #item="{ element }">
             <div
+              :data-task-id="element.taskId"
               class="flex-shrink-0 w-full mt-1 py-2 px-4 text-lg rounded-lg shadow-md bg-black bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20"
             >
               <p>{{ element.taskTitle }}</p>
+              <p>{{ element.taskId }}</p>
             </div>
           </template>
-        </draggable> -->
+        </draggable>
 
-        <div
-          v-for="task in list.tasks"
-          :key="task.taskId"
-          draggable="true"
-          @dragstart="handleDragStart"
-          @dragend="handeDragEnd"
-          class="flex-shrink-0 w-full mt-1 py-2 px-4 text-lg rounded-lg shadow-md bg-black bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20"
-        >
-          <p>{{ task.taskTitle }}</p>
-        </div>
         <form @submit.prevent="formTask(list.listId)">
           <div v-if="selectedListId === list.listId">
             <input
@@ -168,7 +161,7 @@
 <script setup>
 import ShareBoardCard from "@/components/ShareBoardCard.vue";
 import { createList, getList } from "@/services/listService";
-import { createTask } from "@/services/taskService";
+import { createTask, updateTaskOrder } from "@/services/taskService";
 import { useBoardStore } from "@/store/board";
 import { ref, computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
@@ -196,13 +189,6 @@ const cardTriggers = ref({
   buttonTriggers: false,
 });
 
-const handleDragStart = () => {
-  console.log("drag start");
-};
-const handeDragEnd = () => {
-  console.log("drag end");
-};
-
 const TogglePopup = (trigger) => {
   cardTriggers.value[trigger] = !cardTriggers.value[trigger];
 };
@@ -211,9 +197,7 @@ const boardStore = useBoardStore();
 const { $state, setBoardAndSlug } = boardStore;
 
 const boardComputed = computed(() => {
-  return $state.boards.find(
-    (item) => item.boardSlug === route.params.boardSlug
-  );
+  return $state.boards.find((item) => item.boardId === route.params.boardId);
 });
 
 const listComputed = computed(() => $state.lists);
@@ -235,7 +219,6 @@ const handleList = async () => {
   } catch (error) {
     if (error.error && error.error.message) {
       errorMessageList.value = [formatErrorMessage(error.error.message)];
-      console.log("Error create list", error.error.message);
     } else {
       console.log("Unknown error occurred while creating list.", error);
     }
@@ -245,11 +228,9 @@ const handleList = async () => {
 const getListData = async () => {
   try {
     const accessToken = localStorage.getItem("token");
-    const boardSlug = route.params.boardSlug;
+    const boardId = route.params.boardId;
 
-    if (!boardSlug) return;
-
-    const response = await getList(accessToken, boardSlug);
+    const response = await getList(accessToken, boardId);
     const lists = response.data;
     $state.lists = lists;
   } catch (error) {
@@ -258,17 +239,17 @@ const getListData = async () => {
 };
 
 watch(route, (newRoute) => {
-  const boardSlug = newRoute.params.boardSlug;
-  if (boardSlug) {
-    setBoardAndSlug($state.boardSelected, boardSlug);
+  const boardId = newRoute.params.boardId;
+  if (boardId) {
+    setBoardAndSlug($state.boardSelected, boardId);
     getListData();
   }
 });
 
 onMounted(() => {
-  const boardSlug = route.params.boardSlug;
-  if (boardSlug) {
-    setBoardAndSlug($state.boardSelected, boardSlug);
+  const boardId = route.params.boardId;
+  if (boardId) {
+    setBoardAndSlug($state.boardSelected, boardId);
     getListData();
   }
 });
@@ -308,14 +289,12 @@ const formTask = async (listId) => {
 
     const response = await createTask(taskData, accessToken);
     const createdTask = response.data;
-    console.log('ppp', createdTask)
 
     boardStore.addTask({ listId, task: createdTask });
     taskTitle.value = "";
   } catch (error) {
     if (error.error && error.error.message) {
       errorMessageTask.value = [formatErrorMessage(error.error.message)];
-      console.log("error create task", error.error.message);
     } else {
       console.log("Unknown error", error);
     }
@@ -325,9 +304,18 @@ const formTask = async (listId) => {
 const onEnd = async (event) => {
   try {
     const accessToken = localStorage.getItem("token");
-    const { listId, taskId } = event.item.__draggable_context.element;
+    // Get taskId from the dragged item
+    const taskElement = event.item;
+    const taskId = taskElement.dataset.taskId;
+
+    // Get listId from the target list
+    const targetListElement = event.to.closest("[data-list-id]");
+    const listId = targetListElement.dataset.listId;
+
+    console.log("list id", listId);
+    console.log("task id", taskId);
+
     await updateTaskOrder({ taskId, listId }, accessToken);
-    getListData();
   } catch (error) {
     console.error("Error updating task order:", error);
   }

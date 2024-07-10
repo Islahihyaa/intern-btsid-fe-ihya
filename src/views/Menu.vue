@@ -9,7 +9,7 @@
         :key="board.boardId"
         class="board-item p-4 bg-base-200 rounded shadow"
       >
-        <router-link :to="{ path: `/board/${board.boardSlug}` }" class="block">
+        <router-link :to="{ path: `/board/${board.boardId}` }" class="block">
           <h3 class="text-xl font-bold mb-2">{{ board.boardTitle }}</h3>
         </router-link>
       </div>

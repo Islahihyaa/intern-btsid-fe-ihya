@@ -32,10 +32,10 @@ export const getBoard = async (accessToken) => {
   }
 };
 
-export const sharedBoard = async (emailData, accessToken, boardSlug) => {
+export const sharedBoard = async (emailData, accessToken, boardId) => {
   try {
     const response = await axiosInstance.post(
-      `/boards/${boardSlug}/shares`,
+      `/boards/${boardId}/shares`,
       emailData,
       {
         headers: {

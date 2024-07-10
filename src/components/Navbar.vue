@@ -64,7 +64,6 @@ const TogglePopup = (trigger) => {
 const handleLogout = async () => {
   try {
     const accessToken = localStorage.getItem("token");
-    console.log(accessToken)
 
     if (!accessToken) {
       throw new Error("Access token not found");

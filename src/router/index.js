@@ -40,7 +40,7 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: "/board/:boardSlug",
+    path: "/board/:boardId",
     name: "Board",
     component: Home,
     children: [
@@ -53,7 +53,7 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: "/shared-board/:boardSlug",
+    path: "/shared-board/:boardId",
     name: "SharedBoard",
     component: Home,
     children: [

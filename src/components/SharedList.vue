@@ -40,7 +40,7 @@
           d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
         />
       </svg>
-      <p class="ml-2 text-sm text-white">(shared) Add List</p>
+      <p class="ml-2 text-sm text-white">Add List</p>
     </div>
   </button>
 
@@ -55,27 +55,17 @@
           <label for="title">{{ list.listTitle }}</label>
         </div>
 
-        <div>
-          <!-- <draggable v-model="$state.lists" group="tasks" @end="onEnd">
+        <draggable v-model="list.tasks" group="tasks" @end="onEnd">
+          <template #item="{ element }">
             <div
-              v-for="list in $state.lists"
-              :key="list.listId"
-              draggable="true"
-              class="w-full mt-1 py-2 px-4 text-lg rounded-lg shadow-md bg-black bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20"
+              :data-task-id="element.taskId"
+              :data-list-id="list.listId"
+              class="flex-shrink-0 w-full mt-1 py-2 px-4 text-lg rounded-lg shadow-md bg-black bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20"
             >
-              <p>{{ list.listTitle }}</p>
+              <p>{{ element.taskTitle }}</p>
             </div>
-          </draggable> -->
-        </div>
-
-        <div
-          v-for="task in list.tasks"
-          :key="task.taskId"
-          draggable="true"
-          class="flex-shrink-0 w-full mt-1 py-2 px-4 text-lg rounded-lg shadow-md bg-black bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20"
-        >
-          <p>{{ task.taskTitle }}</p>
-        </div>
+          </template>
+        </draggable>
 
         <form @submit.prevent="formTask(list.listId)">
           <div v-if="selectedListId === list.listId">
@@ -207,7 +197,7 @@ const { $state, setBoardAndSlug } = boardStore;
 
 const boardComputed = computed(() => {
   return boardStore.$state.sharedBoards.find(
-    (item) => item.board.boardSlug === route.params.boardSlug
+    (item) => item.board.boardId === route.params.boardId
   );
 });
 
@@ -215,7 +205,6 @@ const listComputed = computed(() => $state.lists);
 
 const handleList = async () => {
   const boardIdData = boardComputed.value.board.boardId;
-  console.log("board id data", boardComputed.value.board.boardId);
 
   try {
     const listData = {
@@ -226,7 +215,6 @@ const handleList = async () => {
 
     const response = await createList(listData, accessToken);
     boardStore.addList(response);
-    console.log("response on card", response);
     isFormVisible.value = false;
     listTitle.value = "";
   } catch (error) {
@@ -242,32 +230,29 @@ const handleList = async () => {
 const getListData = async () => {
   try {
     const accessToken = localStorage.getItem("token");
-    const boardSlug = route.params.boardSlug;
+    const boardId = route.params.boardId;
 
-    if (!boardSlug) return;
-
-    const response = await getList(accessToken, boardSlug);
+    const response = await getList(accessToken, boardId);
     const lists = response.data;
     $state.lists = lists;
 
-    console.log("get lists data", response.data);
   } catch (error) {
     console.error("Error fetching boards:", error);
   }
 };
 
 watch(route, (newRoute) => {
-  const boardSlug = newRoute.params.boardSlug;
-  if (boardSlug) {
-    setBoardAndSlug($state.boardSelected, boardSlug);
+  const boardId = newRoute.params.boardId;
+  if (boardId) {
+    setBoardAndSlug($state.boardSelected, boardId);
     getListData();
   }
 });
 
 onMounted(() => {
-  const boardSlug = route.params.boardSlug;
-  if (boardSlug) {
-    setBoardAndSlug($state.boardSelected, boardSlug);
+  const boardId = route.params.boardId;
+  if (boardId) {
+    setBoardAndSlug($state.boardSelected, boardId);
     getListData();
   }
 });
@@ -314,7 +299,6 @@ const formTask = async (listId) => {
   } catch (error) {
     if (error.error && error.error.message) {
       errorMessageTask.value = [formatErrorMessage(error.error.message)];
-      console.log("error create task", error.error.message);
     } else {
       console.log("Unknown error", error);
     }

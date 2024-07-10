@@ -16,18 +16,22 @@ export const createTask = async (taskData, accessToken) => {
   }
 };
 
-export const updateTaskOrder = async (accessToken, event) => {
+export const updateTaskOrder = async ({taskId, listId}, accessToken) => {
   try {
-    const response = await axiosInstance.patch("/task", taskData, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-    console.log("response drag n drop", response);
+    console.log(accessToken)
+    const response = await axiosInstance.patch(
+      "/tasks",
+      { taskId, listId },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
 
     return response.data;
   } catch (error) {
-    console.log("Error task", error.response.data);
+    console.log("Error board", error.response.data);
     throw error.response.data;
   }
 };

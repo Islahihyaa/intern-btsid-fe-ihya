@@ -1,5 +1,7 @@
 <template>
-  <div class="sidebar bg-base-200 border-r-2 border-slate-600  overflow-y-auto h-screen">
+  <div
+    class="sidebar bg-base-200 border-r-2 border-slate-600 overflow-y-auto h-screen"
+  >
     <div class="flex flex-col">
       <ul class="menu w-72 flex-1">
         <div class="py-4 px-2 text-white text-sm mb-1">
@@ -7,7 +9,7 @@
         </div>
         <div class="overflow-y-auto">
           <li v-for="board in $state.boards" :key="board.boardId" class="m-2">
-            <router-link :to="{ path: `/board/${board.boardSlug}` }">
+            <router-link :to="{ path: `/board/${board.boardId}` }">
               <div
                 @click="showDetailBoard(board.boardId, board.boardSlug)"
                 class="m-2"
@@ -31,7 +33,7 @@
             class="m-2"
           >
             <router-link
-              :to="{ path: `/shared-board/${sharedBoard.board.boardSlug}` }"
+              :to="{ path: `/shared-board/${sharedBoard.board.boardId}` }"
             >
               <div
                 @click="
@@ -72,8 +74,6 @@ const getBoardData = async () => {
 };
 
 const showDetailBoard = (boardId, boardSlug) => {
-  console.log("board id", boardId);
-  console.log("board slug", boardSlug);
   setBoardAndSlug(boardId, boardSlug);
 };
 
@@ -81,8 +81,7 @@ const getSharedBoardData = async () => {
   try {
     const accessToken = localStorage.getItem("token");
 
-    const response = await getSharedBoard(accessToken);
-    console.log("response get shared board", response);
+    await getSharedBoard(accessToken);
     $state.share;
   } catch (error) {
     console.error("Error fetching boards:", error);

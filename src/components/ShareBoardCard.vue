@@ -50,14 +50,14 @@ const collaboratorEmail = ref("");
 const errorMessageShare = ref([])
 
 const formShareBoard = async () => {
-  const boardSlug = route.params.boardSlug;
+  const boardId = route.params.boardId;
   try {
     const emailData = {
       collaboratorEmail: collaboratorEmail.value,
     };
     const accessToken = localStorage.getItem("token");
 
-    await sharedBoard(emailData, accessToken, boardSlug);
+    await sharedBoard(emailData, accessToken, boardId);
 
     popupVisible.value = false;
   } catch (error) {
