@@ -56,14 +56,18 @@
           <label for="title">{{ list.listTitle }}</label>
         </div>
 
-        <draggable v-model="list.tasks" group="tasks" @end="onEnd">
+        <draggable
+          v-model="list.tasks"
+          item-key="taskId"
+          group="tasks"
+          @end="onEnd"
+        >
           <template #item="{ element }">
             <div
               :data-task-id="element.taskId"
               class="flex-shrink-0 w-full mt-1 py-2 px-4 text-lg rounded-lg shadow-md bg-black bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20"
             >
               <p>{{ element.taskTitle }}</p>
-              <p>{{ element.taskId }}</p>
             </div>
           </template>
         </draggable>
@@ -220,7 +224,7 @@ const handleList = async () => {
     if (error.error && error.error.message) {
       errorMessageList.value = [formatErrorMessage(error.error.message)];
     } else {
-      console.log("Unknown error occurred while creating list.", error);
+      errorMessageList.value = ["Unknown error occurred while creating list."];
     }
   }
 };
@@ -296,7 +300,7 @@ const formTask = async (listId) => {
     if (error.error && error.error.message) {
       errorMessageTask.value = [formatErrorMessage(error.error.message)];
     } else {
-      console.log("Unknown error", error);
+      errorMessageTask.value = ["Unknown error"];
     }
   }
 };
@@ -304,18 +308,15 @@ const formTask = async (listId) => {
 const onEnd = async (event) => {
   try {
     const accessToken = localStorage.getItem("token");
-    // Get taskId from the dragged item
+
     const taskElement = event.item;
     const taskId = taskElement.dataset.taskId;
 
-    // Get listId from the target list
     const targetListElement = event.to.closest("[data-list-id]");
-    const listId = targetListElement.dataset.listId;
-
-    console.log("list id", listId);
-    console.log("task id", taskId);
+    const listId = targetListElement ? targetListElement.dataset.listId : null;
 
     await updateTaskOrder({ taskId, listId }, accessToken);
+    getListData();
   } catch (error) {
     console.error("Error updating task order:", error);
   }

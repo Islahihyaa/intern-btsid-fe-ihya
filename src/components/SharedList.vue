@@ -49,17 +49,22 @@
       <div
         v-for="list in listComputed"
         :key="list.listId"
+        :data-list-id="list.listId"
         class="flex-shrink-0 w-72 mr-3 my-6 py-2 px-4 rounded-lg shadow-md bg-black bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20"
       >
         <div class="mb-4 text-lg">
           <label for="title">{{ list.listTitle }}</label>
         </div>
 
-        <draggable v-model="list.tasks" group="tasks" @end="onEnd">
+        <draggable
+          v-model="list.tasks"
+          item-key="taskId"
+          group="tasks"
+          @end="onEnd"
+        >
           <template #item="{ element }">
             <div
               :data-task-id="element.taskId"
-              :data-list-id="list.listId"
               class="flex-shrink-0 w-full mt-1 py-2 px-4 text-lg rounded-lg shadow-md bg-black bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20"
             >
               <p>{{ element.taskTitle }}</p>
@@ -160,7 +165,7 @@
 <script setup>
 import ShareBoardCard from "@/components/ShareBoardCard.vue";
 import { createList, getList } from "@/services/listService";
-import { createTask } from "@/services/taskService";
+import { createTask, updateTaskOrder } from "@/services/taskService";
 import { useBoardStore } from "@/store/board";
 import { ref, computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
@@ -220,9 +225,8 @@ const handleList = async () => {
   } catch (error) {
     if (error.error && error.error.message) {
       errorMessageList.value = [formatErrorMessage(error.error.message)];
-      console.log("Error create list", error.error.message);
     } else {
-      console.log("Unknown error occurred while creating list.", error);
+      errorMessageList.value = ["Unknown error occurred while creating list."];
     }
   }
 };
@@ -235,7 +239,6 @@ const getListData = async () => {
     const response = await getList(accessToken, boardId);
     const lists = response.data;
     $state.lists = lists;
-
   } catch (error) {
     console.error("Error fetching boards:", error);
   }
@@ -300,20 +303,27 @@ const formTask = async (listId) => {
     if (error.error && error.error.message) {
       errorMessageTask.value = [formatErrorMessage(error.error.message)];
     } else {
-      console.log("Unknown error", error);
+      errorMessageTask.value = ["Unknown error"];
     }
   }
 };
 
-// const onEnd = async (event) => {
-//   try {
-//     const accessToken = localStorage.getItem("token");
-//     await updateTaskOrder(event.moved, accessToken);
-//     getListData(); // Refresh lists after updating task order
-//   } catch (error) {
-//     console.error("Error updating task order:", error);
-//   }
-// };
+const onEnd = async (event) => {
+  try {
+    const accessToken = localStorage.getItem("token");
+
+    const taskElement = event.item;
+    const taskId = taskElement.dataset.taskId;
+
+    const targetListElement = event.to.closest("[data-list-id]");
+    const listId = targetListElement ? targetListElement.dataset.listId : null;
+
+    await updateTaskOrder({ taskId, listId }, accessToken);
+    getListData();
+  } catch (error) {
+    errorMessageTask.value = ["Error updating task order"];
+  }
+};
 
 const formatErrorMessage = (message) => {
   if (message.includes("Validation error: list")) {
