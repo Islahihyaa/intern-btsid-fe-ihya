@@ -10,7 +10,6 @@ export const createList = async (listData, accessToken) => {
 
     return response.data.data;
   } catch (error) {
-    console.log("Error list", error.response.data);
     throw error.response.data;
   }
 };
@@ -25,7 +24,6 @@ export const getList = async (accessToken, boardId) => {
 
     return response.data;
   } catch (error) {
-    console.log("Error board", error.response.data);
     throw error.response.data;
   }
 };

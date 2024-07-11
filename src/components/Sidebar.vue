@@ -82,7 +82,6 @@ const getSharedBoardData = async () => {
     const accessToken = localStorage.getItem("token");
 
     await getSharedBoard(accessToken);
-    $state.share;
   } catch (error) {
     console.error("Error fetching boards:", error);
   }

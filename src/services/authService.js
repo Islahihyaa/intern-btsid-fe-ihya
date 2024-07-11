@@ -48,7 +48,6 @@ export const isAuthenticated = () => {
 
     return true;
   } catch (error) {
-    console.error("Error decoding token:", error);
     return false;
   }
 };
@@ -67,7 +66,6 @@ export const logout = async (accessToken) => {
       );
       resolve(response);
     } catch (error) {
-      console.log("error logout", error);
       reject(error);
     }
   });

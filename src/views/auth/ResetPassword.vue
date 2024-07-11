@@ -74,7 +74,6 @@ const handleResetPassword = async () => {
     } else if (error.error && error.error.message) {
       errorMessage.value = [formatErrorMessage(error.error.message)];
     } else {
-      console.log("Error:", error);
       errorMessage.value = [
         "An error occurred while resetting the password. Please try again later.",
         error,

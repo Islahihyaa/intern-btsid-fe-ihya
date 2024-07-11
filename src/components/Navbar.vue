@@ -24,7 +24,16 @@
           tabindex="0"
           class="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52"
         >
-          <li><a @click="handleLogout">Logout</a></li>
+          <li>
+            <a @click="handleLogout">Logout</a>
+            <div v-if="errorMessage">
+              <p
+                class="text-red-500 text-xs px-2 py-1 flex justify-center mb-3"
+              >
+                {{ errorMessage }}
+              </p>
+            </div>
+          </li>
         </ul>
       </div>
     </div>
@@ -38,6 +47,7 @@ import BoardCard from "@/components/BoardCard.vue";
 import { logout } from "@/services/authService";
 
 const userName = ref("");
+const errorMessage = ref("");
 
 const cardTriggers = ref({
   buttonTriggers: false,
@@ -76,7 +86,7 @@ const handleLogout = async () => {
 
     router.push("/login");
   } catch (error) {
-    console.log("error logout", error);
+    errorMessage.value = ["Error logout"];
   }
 };
 </script>

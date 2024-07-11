@@ -40,6 +40,7 @@
 </template>
 
 <script setup>
+import router from "@/router";
 import { sharedBoard } from "@/services/boardService";
 import { ref } from "vue";
 import { useRoute } from "vue-router";
@@ -47,7 +48,7 @@ import { useRoute } from "vue-router";
 const popupVisible = ref(true);
 const route = useRoute();
 const collaboratorEmail = ref("");
-const errorMessageShare = ref([])
+const errorMessageShare = ref([]);
 
 const formShareBoard = async () => {
   const boardId = route.params.boardId;
@@ -60,11 +61,13 @@ const formShareBoard = async () => {
     await sharedBoard(emailData, accessToken, boardId);
 
     popupVisible.value = false;
+
+    router.push("/board");
   } catch (error) {
     if (error.error && error.error.message) {
       errorMessageShare.value = [formatErrorMessage(error.error.message)];
     } else {
-      console.log("Unknown error", error);
+      errorMessageShare.value = ["Unknown error"];
     }
   }
 };

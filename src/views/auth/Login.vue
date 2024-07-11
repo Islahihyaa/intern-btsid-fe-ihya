@@ -77,21 +77,14 @@ const handleLogin = async () => {
       password: password.value,
     };
 
-    const response = await login(userData);
-    console.log("Logged in user ID:", response.userId);
+    await login(userData);
 
-    const accessToken = localStorage.getItem("token");
-
-    if (!accessToken) {
-      console.log("Error login");
-    } else {
-      router.push("/board");
-    }
+    localStorage.getItem("token");
+    router.push("/board");
   } catch (error) {
     if (error.error && error.error.message) {
       errorMessage.value = [formatErrorMessage(error.error.message)];
     } else {
-      console.log("Error:", error);
       errorMessage.value = [
         "An error occurred while logging in. Please try again later.",
       ];

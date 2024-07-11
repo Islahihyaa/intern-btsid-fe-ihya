@@ -73,7 +73,7 @@ const handleBoard = async () => {
     if (error.error.message) {
       errorMessage.value = [formatErrorMessage(error.error.message)];
     } else {
-      console.log("Unknown error occurred while creating board.");
+      errorMessage.value = ["Unknown error occurred while creating board."];
     }
   }
 };
