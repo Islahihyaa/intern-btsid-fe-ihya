@@ -17,7 +17,7 @@
           :key="index"
           class="bg-red-300 border border-red-400 text-red-700 text-xs px-2 py-1 rounded relative flex justify-center mb-3"
         >
-          {{ msg }}
+          <p class="text-center">{{ msg }}</p>
         </div>
       </div>
 
@@ -54,6 +54,7 @@
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { confirmResetPassword } from "@/services/authService";
+import Joi from "joi";
 
 const newPassword = ref("");
 const newPasswordConfirmation = ref("");
@@ -62,13 +63,31 @@ const route = useRoute();
 const router = useRouter();
 
 const handleConfirmResetPassword = async () => {
-  try {
-    const urlResetToken = route.params.urlResetToken;
-    const passwordConfirmationData = {
-      newPassword: newPassword.value,
-      newPasswordConfirmation: newPasswordConfirmation.value,
-    };
+  const urlResetToken = route.params.urlResetToken;
+  const passwordConfirmationData = {
+    newPassword: newPassword.value,
+    newPasswordConfirmation: newPasswordConfirmation.value,
+  };
 
+  const schema = Joi.object({
+    newPassword: Joi.string().min(4).required().messages({
+      "string.empty": "Password is not allowed to be empty",
+      "string.min": "Password must be at least {#limit} characters long",
+    }),
+    newPasswordConfirmation: Joi.valid(Joi.ref("newPassword")).messages({
+      "any.only": "Password confirmation must match the new password",
+    }),
+  });
+
+  const { error } = schema.validate(passwordConfirmationData, { abortEarly: false });
+
+  if (error) {
+    errorMessage.value = error.details.map((detail) =>
+      detail.message.replace(/['"]/g, "")
+    );
+    return;
+  }
+  try {
     await confirmResetPassword(passwordConfirmationData, urlResetToken);
 
     router.push("/login");

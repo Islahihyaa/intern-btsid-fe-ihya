@@ -61,6 +61,7 @@
 </template>
 
 <script setup>
+import Joi from "joi";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { login } from "@/services/authService";
@@ -71,12 +72,33 @@ const errorMessage = ref([]);
 const router = useRouter();
 
 const handleLogin = async () => {
-  try {
-    const userData = {
-      email: email.value,
-      password: password.value,
-    };
+  const userData = {
+    email: email.value,
+    password: password.value,
+  };
 
+  const schema = Joi.object({
+    email: Joi.string()
+      .email({ tlds: { allow: false } })
+      .required()
+      .messages({
+        "string.empty": "Email is not allowed to be empty",
+      }),
+    password: Joi.string().required().messages({
+      "string.empty": "Password is not allowed to be empty",
+    }),
+  });
+
+  const { error } = schema.validate(userData, { abortEarly: false });
+
+  if (error) {
+    errorMessage.value = error.details.map((detail) =>
+      detail.message.replace(/['"]/g, "")
+    );
+    return;
+  }
+
+  try {
     await login(userData);
 
     localStorage.getItem("token");

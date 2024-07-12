@@ -50,6 +50,7 @@
 </template>
 
 <script setup>
+import Joi from "joi";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { resetPassword } from "@/services/authService";
@@ -61,11 +62,27 @@ const successMessage = ref("");
 const router = useRouter();
 
 const handleResetPassword = async () => {
-  try {
-    const emailResetPassword = {
-      userEmail: userEmail.value,
-    };
+  const emailResetPassword = {
+    userEmail: userEmail.value,
+  };
 
+  const schema = Joi.object({
+    userEmail: Joi.string()
+      .email({ tlds: { allow: false } })
+      .required()
+      .messages({
+        "string.empty": "Email is not allowed to be empty",
+      }),
+  });
+
+  const { error } = schema.validate(emailResetPassword, { abortEarly: false });
+  if (error) {
+    errorMessage.value = error.details.map((detail) =>
+      detail.message.replace(/['"]/g, "")
+    );
+    return;
+  }
+  try {
     await resetPassword(emailResetPassword);
     successMessage.value = "Please cek your email";
   } catch (error) {

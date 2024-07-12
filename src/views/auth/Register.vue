@@ -1,6 +1,10 @@
 <template>
-  <div class="flex justify-center items-center min-h-screen bg-[url('/bg-auth.jpg')] bg-cover">
-    <div class="w-full max-w-md p-8 rounded-lg shadow-md bg-white bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20 border border-gray-100">
+  <div
+    class="flex justify-center items-center min-h-screen bg-[url('/bg-auth.jpg')] bg-cover"
+  >
+    <div
+      class="w-full max-w-md p-8 rounded-lg shadow-md bg-white bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20 border border-gray-100"
+    >
       <div class="flex justify-center items-center mb-8">
         <h1 class="font-sans text-3xl font-semibold text-white">Register</h1>
       </div>
@@ -66,26 +70,56 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 import { register } from "@/services/authService";
+import Joi from "joi";
 
-const email = ref('');
-const name = ref('');
-const password = ref('');
-const passwordConfirmation = ref('');
+const email = ref("");
+const name = ref("");
+const password = ref("");
+const passwordConfirmation = ref("");
 const errorMessages = ref([]);
 const router = useRouter();
 
 const handleRegister = async () => {
-  try {
-    const userData = {
-      email: email.value,
-      name: name.value,
-      password: password.value,
-      passwordConfirmation: passwordConfirmation.value,
-    };
+  const userData = {
+    email: email.value,
+    name: name.value,
+    password: password.value,
+    passwordConfirmation: passwordConfirmation.value,
+  };
 
+  const schema = Joi.object({
+    email: Joi.string()
+      .email({ tlds: { allow: false } })
+      .required()
+      .messages({
+        "string.email": "Email must be a valid email",
+        "string.empty": "Email is not allowed to be empty",
+      }),
+    name: Joi.string().min(3).required().messages({
+      "string.empty": "Name is not allowed to be empty",
+      "string.min": "Name must be at least {#limit} characters long",
+    }),
+    password: Joi.string().min(4).required().messages({
+      "string.empty": "Password is not allowed to be empty",
+      "string.min": "Password must be at least {#limit} characters long",
+    }),
+    passwordConfirmation: Joi.valid(Joi.ref("password")).messages({
+      "any.only": "Password confirmation must match the password",
+    }),
+  });
+
+  const { error } = schema.validate(userData, { abortEarly: false });
+
+  if (error) {
+    errorMessages.value = error.details.map((detail) =>
+      detail.message.replace(/['"]/g, "")
+    );
+    return;
+  }
+  try {
     await register(userData);
 
     router.push("/login");
@@ -113,7 +147,9 @@ const formatErrorMessage = (message) => {
 
     if (charMatch) {
       const [, charCount, field] = charMatch;
-      return `${capitalizeFirstLetter(field)} must contain at least ${charCount} characters`;
+      return `${capitalizeFirstLetter(
+        field
+      )} must contain at least ${charCount} characters`;
     }
     return msg;
   });

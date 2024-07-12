@@ -208,6 +208,12 @@ const listComputed = computed(() => $state.lists);
 
 const handleList = async () => {
   const boardIdData = boardComputed.value.boardId;
+  const listTitleTrimmed = listTitle.value.trim();
+
+  if (!listTitleTrimmed) {
+    errorMessageList.value = ["List name cannot be blank"];
+    return;
+  }
 
   try {
     const listData = {
@@ -238,7 +244,11 @@ const getListData = async () => {
     const lists = response.data;
     $state.lists = lists;
   } catch (error) {
-    console.error("Error fetching boards:", error);
+    if ((error.status = 404)) {
+      console.error("Error fetching boards");
+    } else {
+      console.error("Error fetching boards:");
+    }
   }
 };
 

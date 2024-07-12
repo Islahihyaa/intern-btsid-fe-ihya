@@ -24,6 +24,10 @@ export const getList = async (accessToken, boardId) => {
 
     return response.data;
   } catch (error) {
-    throw error.response.data;
+    if (error.response && error.response.status === 404) {
+      return null;
+    } else {
+      throw error.response ? error.response.data : error;
+    }
   }
 };
