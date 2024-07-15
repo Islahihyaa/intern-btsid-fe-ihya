@@ -6,7 +6,14 @@
       <div class="text-lg text-white">
         {{ boardComputed ? boardComputed.boardTitle : "" }}
       </div>
-      <div>
+      asdsad
+      <div class="flex items-center">
+        <div>
+          <pre>
+
+          <!-- <p>{{  authorComputed }}</p> -->
+        </pre>
+        </div>
         <button
           @click="() => TogglePopup('buttonTriggers')"
           class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
@@ -163,6 +170,7 @@
 </template>
 
 <script setup>
+import Joi from "joi";
 import ShareBoardCard from "@/components/ShareBoardCard.vue";
 import { createList, getList } from "@/services/listService";
 import { createTask, updateTaskOrder } from "@/services/taskService";
@@ -173,21 +181,15 @@ import draggable from "vuedraggable";
 
 const errorMessageList = ref([]);
 const errorMessageTask = ref([]);
-const listTitle = ref("");
 const isFormVisible = ref(false);
 const selectedListId = ref(null);
-const taskTitle = ref("");
 const buttonTaskHidden = ref(true);
+const taskTitle = ref("");
+const listTitle = ref("");
+
 const route = useRoute();
-
-const emit = defineEmits(["cancel"]);
-
-const props = defineProps({
-  showMenu: {
-    type: Boolean,
-    required: true,
-  },
-});
+const boardStore = useBoardStore();
+const { $state, setBoardAndSlug } = boardStore;
 
 const cardTriggers = ref({
   buttonTriggers: false,
@@ -197,21 +199,35 @@ const TogglePopup = (trigger) => {
   cardTriggers.value[trigger] = !cardTriggers.value[trigger];
 };
 
-const boardStore = useBoardStore();
-const { $state, setBoardAndSlug } = boardStore;
-
 const boardComputed = computed(() => {
   return $state.boards.find((item) => item.boardId === route.params.boardId);
+});
+
+const authorComputed = computed(() => {
+  return $state.sharedBoards;
 });
 
 const listComputed = computed(() => $state.lists);
 
 const handleList = async () => {
   const boardIdData = boardComputed.value.boardId;
-  const listTitleTrimmed = listTitle.value.trim();
 
-  if (!listTitleTrimmed) {
-    errorMessageList.value = ["List name cannot be blank"];
+  const validationData = {
+    listTitle: listTitle.value,
+  };
+
+  const schema = Joi.object({
+    listTitle: Joi.string().required().messages({
+      "string.empty": "List title is not allowed to be empty",
+    }),
+  });
+
+  const { error } = schema.validate(validationData, { abortEarly: false });
+
+  if (error) {
+    errorMessageList.value = error.details.map((detail) =>
+      detail.message.replace(/['"]/g, "")
+    );
     return;
   }
 
@@ -226,6 +242,7 @@ const handleList = async () => {
     boardStore.addList(response);
     isFormVisible.value = false;
     listTitle.value = "";
+    getListData();
   } catch (error) {
     if (error.error && error.error.message) {
       errorMessageList.value = [formatErrorMessage(error.error.message)];
@@ -293,6 +310,25 @@ const close = () => {
 };
 
 const formTask = async (listId) => {
+  const validationData = {
+    taskTitle: taskTitle.value,
+  };
+
+  const schema = Joi.object({
+    taskTitle: Joi.string().required().messages({
+      "string.empty": "Task title is not allowed to be empty",
+    }),
+  });
+
+  const { error } = schema.validate(validationData, { abortEarly: false });
+
+  if (error) {
+    errorMessageTask.value = error.details.map((detail) =>
+      detail.message.replace(/['"]/g, "")
+    );
+    return;
+  }
+
   try {
     const taskData = {
       taskTitle: taskTitle.value,
@@ -328,7 +364,7 @@ const onEnd = async (event) => {
     await updateTaskOrder({ taskId, listId }, accessToken);
     getListData();
   } catch (error) {
-    console.error("Error updating task order:", error);
+    errorMessageTask.value = ["Error updating task order"];
   }
 };
 
