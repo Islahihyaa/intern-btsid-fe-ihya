@@ -6,14 +6,7 @@
       <div class="text-lg text-white">
         {{ boardComputed ? boardComputed.boardTitle : "" }}
       </div>
-      asdsad
       <div class="flex items-center">
-        <div>
-          <pre>
-
-          <!-- <p>{{  authorComputed }}</p> -->
-        </pre>
-        </div>
         <button
           @click="() => TogglePopup('buttonTriggers')"
           class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
@@ -201,10 +194,6 @@ const TogglePopup = (trigger) => {
 
 const boardComputed = computed(() => {
   return $state.boards.find((item) => item.boardId === route.params.boardId);
-});
-
-const authorComputed = computed(() => {
-  return $state.sharedBoards;
 });
 
 const listComputed = computed(() => $state.lists);

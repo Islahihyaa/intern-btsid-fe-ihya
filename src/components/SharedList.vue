@@ -10,7 +10,7 @@
         <div v-if="boardComputed">
           <Avatar :userName="boardComputed.board.author.userName" />
         </div>
-        <div v-if="boardComputed && boardComputed.collaborators">
+        <div v-if="boardComputed && boardComputed.collaborators" class="mr-4">
           <ul class="flex items-center">
             <li
               v-for="collaborator in collaboratorsUserNames"
@@ -29,10 +29,6 @@
       </div>
     </div>
   </div>
-  <pre>
-
-<p>{{  collaboratorsUserNames }}</p>
-</pre>
   <ShareBoardCard
     v-if="cardTriggers.buttonTriggers"
     :TogglePopup="() => TogglePopup('buttonTriggers')"
@@ -60,6 +56,7 @@
       <p class="ml-2 text-sm text-white">Add List</p>
     </div>
   </button>
+
 
   <div class="m-4 overflow-x-auto h-screen">
     <div class="flex items-baseline">
@@ -184,11 +181,11 @@ import Joi from "joi";
 import ShareBoardCard from "@/components/ShareBoardCard.vue";
 import { createList, getList } from "@/services/listService";
 import { createTask, updateTaskOrder } from "@/services/taskService";
-import Avatar from "./Avatar.vue";
 import { useBoardStore } from "@/store/board";
 import { ref, computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import draggable from "vuedraggable";
+import Avatar from "./Avatar.vue";
 
 const errorMessageList = ref([]);
 const errorMessageTask = ref([]);
@@ -198,15 +195,6 @@ const selectedListId = ref(null);
 const taskTitle = ref("");
 const buttonTaskHidden = ref(true);
 const route = useRoute();
-
-const emit = defineEmits(["cancel"]);
-
-const props = defineProps({
-  showMenu: {
-    type: Boolean,
-    required: true,
-  },
-});
 
 const cardTriggers = ref({
   buttonTriggers: false,
