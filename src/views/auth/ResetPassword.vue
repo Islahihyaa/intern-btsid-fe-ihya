@@ -52,14 +52,11 @@
 <script setup>
 import Joi from "joi";
 import { ref } from "vue";
-import { useRouter } from "vue-router";
 import { resetPassword } from "@/services/authService";
 
 const userEmail = ref("");
-const password = ref("");
 const errorMessage = ref([]);
 const successMessage = ref("");
-const router = useRouter();
 
 const handleResetPassword = async () => {
   const emailResetPassword = {

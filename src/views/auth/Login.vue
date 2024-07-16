@@ -83,6 +83,7 @@ const handleLogin = async () => {
       .required()
       .messages({
         "string.empty": "Email is not allowed to be empty",
+        "string.email": "Email must be a valid email address",
       }),
     password: Joi.string().required().messages({
       "string.empty": "Password is not allowed to be empty",

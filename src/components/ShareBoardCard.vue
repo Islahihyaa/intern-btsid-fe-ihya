@@ -40,8 +40,10 @@
 </template>
 
 <script setup>
+import Joi from "joi";
 import router from "@/router";
 import { sharedBoard } from "@/services/boardService";
+import { useBoardStore } from "@/store/board";
 import { ref } from "vue";
 import { useRoute } from "vue-router";
 
@@ -50,12 +52,39 @@ const route = useRoute();
 const collaboratorEmail = ref("");
 const errorMessageShare = ref([]);
 
+const boardStore = useBoardStore();
+
 const formShareBoard = async () => {
-  const boardId = route.params.boardId;
+  const validationData = {
+    collaboratorEmail: collaboratorEmail.value,
+  };
+
+  const schema = Joi.object({
+    collaboratorEmail: Joi.string()
+      .email({ tlds: { allow: false } })
+      .required()
+      .messages({
+        "string.email": "Email must be a valid email",
+        "string.empty": "Email is not allowed to be empty",
+      }),
+  });
+
+  const { error } = schema.validate(validationData, { abortEarly: false });
+
+  if (error) {
+    errorMessageShare.value = error.details.map((detail) =>
+      detail.message.replace(/['"]/g, "")
+    );
+    return;
+  }
+
   try {
     const emailData = {
       collaboratorEmail: collaboratorEmail.value,
     };
+
+    const boardId = route.params.boardId;
+
     const accessToken = localStorage.getItem("token");
 
     await sharedBoard(emailData, accessToken, boardId);
@@ -63,6 +92,9 @@ const formShareBoard = async () => {
     popupVisible.value = false;
 
     router.push("/board");
+
+    boardStore.getBoardData();
+    boardStore.getSharedBoardData();
   } catch (error) {
     if (error.error && error.error.message) {
       errorMessageShare.value = [formatErrorMessage(error.error.message)];

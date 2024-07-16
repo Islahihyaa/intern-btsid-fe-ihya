@@ -38,18 +38,36 @@
 </template>
 
 <script setup>
+import Joi from "joi";
 import { ref } from "vue";
 import { createBoard } from "@/services/boardService";
 import { useBoardStore } from "@/store/board";
 
 const errorMessage = ref([]);
-
 const boardTitle = ref("");
 const popupVisible = ref(true);
 
 const boardStore = useBoardStore();
 
 const handleBoard = async () => {
+  const validationData = {
+    boardTitle: boardTitle.value,
+  };
+  const schema = Joi.object({
+    boardTitle: Joi.string().required().messages({
+      "string.empty": "Board title cannot be blank",
+    }),
+  });
+
+  const { error } = schema.validate(validationData, { abortEarly: false });
+
+  if (error) {
+    errorMessage.value = error.details.map((detail) =>
+      detail.message.replace(/['"]/g, "")
+    );
+    return;
+  }
+
   try {
     const userId = JSON.parse(localStorage.getItem("userData")).userId;
 
@@ -69,6 +87,9 @@ const handleBoard = async () => {
     boardStore.addBoard(boardData);
 
     popupVisible.value = false;
+
+    boardStore.getBoardData();
+    
   } catch (error) {
     if (error.error.message) {
       errorMessage.value = [formatErrorMessage(error.error.message)];

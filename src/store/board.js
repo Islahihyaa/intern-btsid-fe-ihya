@@ -1,3 +1,4 @@
+import { getBoard, getSharedBoard } from "@/services/boardService";
 import { defineStore } from "pinia";
 
 export const useBoardStore = defineStore("board", {
@@ -39,6 +40,24 @@ export const useBoardStore = defineStore("board", {
     setBoardAndSlug(boardId, boardSlug) {
       this.boardSelected = boardId;
       this.slugSelected = boardSlug;
+    },
+    async getBoardData() {
+      try {
+        const accessToken = localStorage.getItem("token");
+
+        await getBoard(accessToken);
+      } catch (error) {
+        console.error("Error fetching boards:", error);
+      }
+    },
+    async getSharedBoardData() {
+      try {
+        const accessToken = localStorage.getItem("token");
+
+        await getSharedBoard(accessToken);
+      } catch (error) {
+        console.error("Error fetching boards:", error);
+      }
     },
   },
 });

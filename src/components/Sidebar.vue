@@ -57,39 +57,19 @@
 </template>
 
 <script setup>
-import { getBoard, getSharedBoard } from "@/services/boardService";
 import { onMounted } from "vue";
 import { useBoardStore } from "@/store/board";
 
 const { $state, setBoardAndSlug } = useBoardStore();
-
-const getBoardData = async () => {
-  try {
-    const accessToken = localStorage.getItem("token");
-
-    await getBoard(accessToken);
-  } catch (error) {
-    console.error("Error fetching boards:", error);
-  }
-};
+const boardStore = useBoardStore();
 
 const showDetailBoard = (boardId, boardSlug) => {
   setBoardAndSlug(boardId, boardSlug);
 };
 
-const getSharedBoardData = async () => {
-  try {
-    const accessToken = localStorage.getItem("token");
-
-    await getSharedBoard(accessToken);
-  } catch (error) {
-    console.error("Error fetching boards:", error);
-  }
-};
-
 onMounted(() => {
-  getBoardData();
-  getSharedBoardData();
+  boardStore.getBoardData();
+  boardStore.getSharedBoardData();
 });
 </script>
 

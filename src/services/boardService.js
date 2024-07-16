@@ -62,5 +62,7 @@ export const getSharedBoard = async (accessToken) => {
     $state.sharedBoards = response.data.data;
 
     return response.data;
-  } catch (error) {}
+  } catch (error) {
+    throw error.response.data;
+  }
 };
