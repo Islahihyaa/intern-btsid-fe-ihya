@@ -19,6 +19,14 @@
         </div>
       </div>
 
+      <div v-if="successMessage.length > 0">
+        <div
+          class="bg-green-300 border border-green-400 text-green-700 px-2 py-1 rounded relative flex justify-center mb-3"
+        >
+          {{ successMessage }}
+        </div>
+      </div>
+
       <form @submit.prevent="handleRegister">
         <div class="mb-4 text-lg">
           <input
@@ -71,7 +79,6 @@
 
 <script setup>
 import { ref } from "vue";
-import { useRouter } from "vue-router";
 import { register } from "@/services/authService";
 import Joi from "joi";
 
@@ -80,7 +87,7 @@ const name = ref("");
 const password = ref("");
 const passwordConfirmation = ref("");
 const errorMessages = ref([]);
-const router = useRouter();
+const successMessage = ref("");
 
 const handleRegister = async () => {
   const userData = {
@@ -122,7 +129,13 @@ const handleRegister = async () => {
   try {
     await register(userData);
 
-    router.push("/login");
+    successMessage.value = "Please check your email!";
+
+    email.value = "";
+    name.value = "";
+    password.value = "";
+    passwordConfirmation.value = "";
+    
   } catch (error) {
     if (error.error && error.error.message) {
       errorMessages.value = formatErrorMessage(error.error.message);

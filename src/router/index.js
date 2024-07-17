@@ -3,6 +3,7 @@ import Login from "@/views/auth/Login.vue";
 import Register from "@/views/auth/Register.vue";
 import ResetPassword from "@/views/auth/ResetPassword.vue";
 import ConfirmResetPassword from "@/views/auth/ConfirmResetPassword.vue";
+import RegistrationConfirmation from "@/views/auth/RegistrationConfirmation.vue";
 import Home from "@/views/Home.vue";
 import ListCard from "@/components/ListCard.vue";
 import SharedList from "@/components/SharedList.vue";
@@ -22,6 +23,11 @@ const routes = [
     path: "/users/reset-password/:urlResetToken",
     name: "ConfirmReset",
     component: ConfirmResetPassword,
+  },
+  {
+    path: "/users/verify/:urlRegistrationToken",
+    name: "ConfirmReset",
+    component: RegistrationConfirmation,
   },
   {
     path: "/register",

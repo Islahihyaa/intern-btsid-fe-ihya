@@ -106,3 +106,15 @@ export const confirmResetPassword = async (
     throw error.response.data;
   }
 };
+
+export const registrationConfirmation = async (urlRegistrationToken) => {
+  try {
+    const response = await axiosInstance.post(
+      `/users/verify/${urlRegistrationToken}`
+    );
+
+    return response.data;
+  } catch (error) {
+    throw error.response.data;
+  }
+};
