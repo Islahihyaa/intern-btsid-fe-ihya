@@ -57,7 +57,6 @@
     </div>
   </button>
 
-
   <div class="m-4 overflow-x-auto h-screen">
     <div class="flex items-baseline">
       <div
@@ -186,6 +185,13 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import draggable from "vuedraggable";
 import Avatar from "./Avatar.vue";
+import socket from "@/socket";
+
+import { io } from "socket.io-client";
+
+const URL = "http://localhost:8000"; // URL backend socket.io server
+
+// export default socket;
 
 const errorMessageList = ref([]);
 const errorMessageTask = ref([]);
@@ -255,6 +261,9 @@ const handleList = async () => {
     boardStore.addList(response);
     isFormVisible.value = false;
     listTitle.value = "";
+
+    socket.emit("createList", response);
+
     getListData();
   } catch (error) {
     if (error.error && error.error.message) {
@@ -272,6 +281,20 @@ const getListData = async () => {
 
     const response = await getList(accessToken, boardId);
     const lists = response.data;
+
+    // Connect to socket and emit createList event
+    if (!socket.connected) {
+      socket.connect();
+    }
+
+    socket.emit("join-board", boardId);
+
+    socket.on("createdList", (response) => {
+      console.log(response);
+
+      $state.lists.push(response);
+    });
+
     $state.lists = lists;
   } catch (error) {
     console.error("Error fetching boards:", error);

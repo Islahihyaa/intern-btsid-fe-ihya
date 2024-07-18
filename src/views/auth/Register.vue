@@ -62,10 +62,18 @@
         </div>
 
         <button
+          v-if="!loading"
           type="submit"
           class="w-full px-4 py-2 text-lg my-4 bg-primary text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring"
         >
           Register
+        </button>
+        <button
+          v-if="loading"
+          type="submit"
+          class="w-full px-4 py-2 text-lg my-4 bg-primary text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring"
+        >
+          <span class="loading loading-spinner loading-md"></span>
         </button>
       </form>
 
@@ -88,6 +96,7 @@ const password = ref("");
 const passwordConfirmation = ref("");
 const errorMessages = ref([]);
 const successMessage = ref("");
+const loading = false;
 
 const handleRegister = async () => {
   const userData = {
@@ -135,7 +144,6 @@ const handleRegister = async () => {
     name.value = "";
     password.value = "";
     passwordConfirmation.value = "";
-    
   } catch (error) {
     if (error.error && error.error.message) {
       errorMessages.value = formatErrorMessage(error.error.message);
