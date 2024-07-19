@@ -277,7 +277,6 @@ const getListData = async () => {
     const response = await getList(accessToken, boardId);
     const lists = response.data;
 
-    // Connect to socket and emit createList event
     if (!socket.connected) {
       socket.connect();
     }
@@ -285,14 +284,12 @@ const getListData = async () => {
     socket.emit("join-board", boardId);
 
     socket.on("createdList", (response) => {
-      console.log("response", response);
 
       const listExists = $state.lists.some(
         (list) => list.listId === response.listId
       );
 
       if (!listExists) {
-        console.log("push");
         $state.lists.push(response);
       }
     });
@@ -373,9 +370,6 @@ const formTask = async (listId) => {
 
     const response = await createTask(taskData, accessToken);
     const createdTask = response.data;
-
-    console.log(listId);
-    console.log(createdTask);
 
     boardStore.addTask({ listId, task: createdTask });
 

@@ -329,9 +329,6 @@ const formTask = async (listId) => {
     const response = await createTask(taskData, accessToken);
     const createdTask = response.data;
 
-    console.log(listId);
-    console.log(createdTask);
-
     boardStore.addTask({ listId, task: createdTask });
     taskTitle.value = "";
   } catch (error) {
