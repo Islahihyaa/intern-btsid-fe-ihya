@@ -46,4 +46,8 @@ const toggleProfileCard = () => {
   margin-left: 2px;
   cursor: pointer;
 }
+
+span {
+  font-size: 16px;
+}
 </style>
