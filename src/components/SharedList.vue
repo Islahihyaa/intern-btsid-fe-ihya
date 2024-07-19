@@ -187,20 +187,17 @@ import draggable from "vuedraggable";
 import Avatar from "./Avatar.vue";
 import socket from "@/socket";
 
-import { io } from "socket.io-client";
-
-const URL = "http://localhost:8000"; // URL backend socket.io server
-
-// export default socket;
-
 const errorMessageList = ref([]);
 const errorMessageTask = ref([]);
-const listTitle = ref("");
 const isFormVisible = ref(false);
-const selectedListId = ref(null);
-const taskTitle = ref("");
 const buttonTaskHidden = ref(true);
+const selectedListId = ref(null);
+const listTitle = ref("");
+const taskTitle = ref("");
+
 const route = useRoute();
+const boardStore = useBoardStore();
+const { $state, setBoardAndSlug } = boardStore;
 
 const cardTriggers = ref({
   buttonTriggers: false,
@@ -209,9 +206,6 @@ const cardTriggers = ref({
 const TogglePopup = (trigger) => {
   cardTriggers.value[trigger] = !cardTriggers.value[trigger];
 };
-
-const boardStore = useBoardStore();
-const { $state, setBoardAndSlug } = boardStore;
 
 const boardComputed = computed(() => {
   return boardStore.$state.sharedBoards.find(
@@ -259,6 +253,7 @@ const handleList = async () => {
 
     const response = await createList(listData, accessToken);
     boardStore.addList(response);
+
     isFormVisible.value = false;
     listTitle.value = "";
 
@@ -290,9 +285,16 @@ const getListData = async () => {
     socket.emit("join-board", boardId);
 
     socket.on("createdList", (response) => {
-      console.log(response);
+      console.log("response", response);
 
-      $state.lists.push(response);
+      const listExists = $state.lists.some(
+        (list) => list.listId === response.listId
+      );
+
+      if (!listExists) {
+        console.log("push");
+        $state.lists.push(response);
+      }
     });
 
     $state.lists = lists;
@@ -371,6 +373,9 @@ const formTask = async (listId) => {
 
     const response = await createTask(taskData, accessToken);
     const createdTask = response.data;
+
+    console.log(listId);
+    console.log(createdTask);
 
     boardStore.addTask({ listId, task: createdTask });
 
