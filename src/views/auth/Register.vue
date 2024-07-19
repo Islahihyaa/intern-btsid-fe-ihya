@@ -70,8 +70,8 @@
         </button>
         <button
           v-if="loading"
-          type="submit"
           class="w-full px-4 py-2 text-lg my-4 bg-primary text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring"
+          disabled
         >
           <span class="loading loading-spinner loading-md"></span>
         </button>
@@ -96,7 +96,7 @@ const password = ref("");
 const passwordConfirmation = ref("");
 const errorMessages = ref([]);
 const successMessage = ref("");
-const loading = false;
+const loading = ref(false);
 
 const handleRegister = async () => {
   const userData = {
@@ -135,6 +135,7 @@ const handleRegister = async () => {
     );
     return;
   }
+  loading.value = true;
   try {
     await register(userData);
 
@@ -152,6 +153,8 @@ const handleRegister = async () => {
         "An error occurred while registering. Please try again later.",
       ];
     }
+  } finally {
+    loading.value = false;
   }
 };
 
