@@ -1,4 +1,5 @@
 import { getBoard, getSharedBoard } from "@/services/boardService";
+import socket from "@/socket";
 import { defineStore } from "pinia";
 
 export const useBoardStore = defineStore("board", {
@@ -53,6 +54,8 @@ export const useBoardStore = defineStore("board", {
     async getSharedBoardData() {
       try {
         const accessToken = localStorage.getItem("token");
+
+        // socket.emit("join-board", boardId);
 
         await getSharedBoard(accessToken);
       } catch (error) {

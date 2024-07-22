@@ -46,6 +46,7 @@ import { sharedBoard } from "@/services/boardService";
 import { useBoardStore } from "@/store/board";
 import { ref } from "vue";
 import { useRoute } from "vue-router";
+import socket from "@/socket";
 
 const popupVisible = ref(true);
 const route = useRoute();
@@ -88,6 +89,17 @@ const formShareBoard = async () => {
     const accessToken = localStorage.getItem("token");
 
     await sharedBoard(emailData, accessToken, boardId);
+
+    socket.emit("join-board", boardId);
+
+    socket.on("joinedBoard", (response) => {
+      // const listExists = $state.lists.some(
+      //   (list) => list.listId === response.listId
+      // );
+      console.log(response);
+
+      // $state.sharedBoards.push(response);
+    }); 
 
     popupVisible.value = false;
 
