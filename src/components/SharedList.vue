@@ -284,13 +284,35 @@ const getListData = async () => {
     socket.emit("join-board", boardId);
 
     socket.on("createdList", (response) => {
-
       const listExists = $state.lists.some(
         (list) => list.listId === response.listId
       );
 
       if (!listExists) {
         $state.lists.push(response);
+      }
+    });
+
+    socket.on("createdTask", (response) => {
+      const { listId, taskTitle, taskId } = response;
+      console.log("res", response);
+      console.log("ress", taskTitle);
+
+      const listOnTask = $state.lists.find((list) => list.listId === listId);
+      console.log(listOnTask.listId);
+
+      if (listOnTask) {
+        // Check if task already exists
+        const taskExists = listOnTask.tasks.some(
+          (task) => task.taskId === taskId
+        );
+        if (!taskExists) {
+          listOnTask.tasks.push({ taskId, taskTitle });
+        } else {
+          console.log(`Task with ID ${taskId} already exists in the list`);
+        }
+      } else {
+        console.error(`List with ID ${listId} not found`);
       }
     });
 
@@ -372,6 +394,8 @@ const formTask = async (listId) => {
     const createdTask = response.data;
 
     boardStore.addTask({ listId, task: createdTask });
+
+    socket.emit("createTask", createdTask);
 
     taskTitle.value = "";
   } catch (error) {
