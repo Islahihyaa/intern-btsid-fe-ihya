@@ -295,24 +295,40 @@ const getListData = async () => {
 
     socket.on("createdTask", (response) => {
       const { listId, taskTitle, taskId } = response;
-      console.log("res", response);
-      console.log("ress", taskTitle);
 
       const listOnTask = $state.lists.find((list) => list.listId === listId);
-      console.log(listOnTask.listId);
 
       if (listOnTask) {
-        // Check if task already exists
         const taskExists = listOnTask.tasks.some(
           (task) => task.taskId === taskId
         );
         if (!taskExists) {
           listOnTask.tasks.push({ taskId, taskTitle });
-        } else {
-          console.log(`Task with ID ${taskId} already exists in the list`);
         }
-      } else {
-        console.error(`List with ID ${listId} not found`);
+      }
+    });
+
+    socket.on("updatedTask", (response) => {
+      const { oldListId, newListId, taskId, taskTitle } = response;
+
+      // Remove task from old list
+      const oldList = $state.lists.find((list) => list.listId === oldListId);
+      if (oldList) {
+        const taskIndex = oldList.tasks.findIndex(
+          (task) => task.taskId === taskId
+        );
+        if (taskIndex > -1) {
+          oldList.tasks.splice(taskIndex, 1);
+        }
+      }
+
+      // Add task to new list
+      const newList = $state.lists.find((list) => list.listId === newListId);
+      if (newList) {
+        const taskExists = newList.tasks.some((task) => task.taskId === taskId);
+        if (!taskExists) {
+          newList.tasks.push({ taskId, taskTitle });
+        }
       }
     });
 
@@ -417,7 +433,14 @@ const onEnd = async (event) => {
     const targetListElement = event.to.closest("[data-list-id]");
     const listId = targetListElement ? targetListElement.dataset.listId : null;
 
-    await updateTaskOrder({ taskId, listId }, accessToken);
+    const oldListElement = event.from.closest("[data-list-id]");
+    const oldListId = oldListElement ? oldListElement.dataset.listId : null;
+
+    const response = await updateTaskOrder({ taskId, listId }, accessToken);
+    const updatedTask = response.data;
+
+    socket.emit("updateTask", { ...updatedTask, oldListId });
+
     getListData();
   } catch (error) {
     errorMessageTask.value = ["Error updating task order"];
