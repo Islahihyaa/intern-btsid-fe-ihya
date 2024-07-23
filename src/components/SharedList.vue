@@ -272,7 +272,6 @@ const getListData = async () => {
 
     const response = await getList(accessToken, boardId);
     const lists = response.data;
-    console.log('lists',lists)
 
     setupSocketListener(boardId);
 
@@ -282,8 +281,7 @@ const getListData = async () => {
   }
 };
 
-const setupSocketListener = (boardId) => {
-  // socket.emit("join-board", boardId);
+const setupSocketListener = () => {
 
   socket.on("createdList", (response) => {
     const listExists = $state.lists.some(

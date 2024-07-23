@@ -55,17 +55,10 @@ export const useBoardStore = defineStore("board", {
       try {
         const accessToken = localStorage.getItem("token");
 
-        const response = await getSharedBoard(accessToken);
-        console.log("get shared boards", response);
+        await getSharedBoard(accessToken);
 
         socket.on("joinedBoard", (boardData) => {
-          // const listExists = $state.lists.some(
-          //   (list) => list.listId === response.listId
-          // );
           this.sharedBoards.push(boardData);
-          
-          console.log("joined", boardData);
-
         });
       } catch (error) {
         console.error("Error fetching boards:", error);
