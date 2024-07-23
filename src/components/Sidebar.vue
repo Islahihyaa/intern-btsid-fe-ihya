@@ -52,6 +52,9 @@
           </li>
         </div>
       </ul>
+      <pre>
+        {{ $state.sharedBoards }}
+      </pre>
     </div>
   </div>
 </template>

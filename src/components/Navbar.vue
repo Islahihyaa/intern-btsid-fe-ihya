@@ -45,6 +45,7 @@ import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import BoardCard from "@/components/BoardCard.vue";
 import { logout } from "@/services/authService";
+import socket from "@/socket";
 
 const userName = ref("");
 const errorMessage = ref("");
@@ -52,6 +53,8 @@ const errorMessage = ref("");
 const cardTriggers = ref({
   buttonTriggers: false,
 });
+
+const router = useRouter();
 
 const getUserNameFromLocalStorage = () => {
   const storedUserData = localStorage.getItem("userData");
@@ -65,8 +68,6 @@ onMounted(() => {
   getUserNameFromLocalStorage();
 });
 
-const router = useRouter();
-
 const TogglePopup = (trigger) => {
   cardTriggers.value[trigger] = !cardTriggers.value[trigger];
 };
@@ -75,11 +76,9 @@ const handleLogout = async () => {
   try {
     const accessToken = localStorage.getItem("token");
 
-    if (!accessToken) {
-      throw new Error("Access token not found");
-    }
-
     await logout(accessToken);
+
+    socket.disconnect();
 
     localStorage.removeItem("token");
     localStorage.removeItem("userData");

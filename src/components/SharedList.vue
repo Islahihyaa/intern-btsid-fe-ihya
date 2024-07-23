@@ -195,13 +195,13 @@ const selectedListId = ref(null);
 const listTitle = ref("");
 const taskTitle = ref("");
 
-const route = useRoute();
-const boardStore = useBoardStore();
-const { $state, setBoardAndSlug } = boardStore;
-
 const cardTriggers = ref({
   buttonTriggers: false,
 });
+
+const route = useRoute();
+const boardStore = useBoardStore();
+const { $state, setBoardAndSlug } = boardStore;
 
 const TogglePopup = (trigger) => {
   cardTriggers.value[trigger] = !cardTriggers.value[trigger];
@@ -222,20 +222,17 @@ const collaboratorsUserNames = computed(() => {
 
 const listComputed = computed(() => $state.lists);
 
-const handleList = async () => {
-  const boardIdData = boardComputed.value.board.boardId;
-
-  const validationData = {
-    listTitle: listTitle.value,
-  };
-
+const validateListTitle = (title) => {
   const schema = Joi.object({
     listTitle: Joi.string().required().messages({
       "string.empty": "List title is not allowed to be empty",
     }),
   });
+  return schema.validate({ listTitle: title }, { abortEarly: false });
+};
 
-  const { error } = schema.validate(validationData, { abortEarly: false });
+const handleList = async () => {
+  const { error } = validateListTitle(listTitle.value);
 
   if (error) {
     errorMessageList.value = error.details.map((detail) =>
@@ -247,7 +244,7 @@ const handleList = async () => {
   try {
     const listData = {
       listTitle: listTitle.value,
-      boardId: boardIdData,
+      boardId: boardComputed.value.board.boardId,
     };
     const accessToken = localStorage.getItem("token");
 
@@ -258,7 +255,6 @@ const handleList = async () => {
     listTitle.value = "";
 
     socket.emit("createList", response);
-
     getListData();
   } catch (error) {
     if (error.error && error.error.message) {
@@ -276,61 +272,9 @@ const getListData = async () => {
 
     const response = await getList(accessToken, boardId);
     const lists = response.data;
+    console.log('lists',lists)
 
-    if (!socket.connected) {
-      socket.connect();
-    }
-
-    socket.emit("join-board", boardId);
-
-    socket.on("createdList", (response) => {
-      const listExists = $state.lists.some(
-        (list) => list.listId === response.listId
-      );
-
-      if (!listExists) {
-        $state.lists.push(response);
-      }
-    });
-
-    socket.on("createdTask", (response) => {
-      const { listId, taskTitle, taskId } = response;
-
-      const listOnTask = $state.lists.find((list) => list.listId === listId);
-
-      if (listOnTask) {
-        const taskExists = listOnTask.tasks.some(
-          (task) => task.taskId === taskId
-        );
-        if (!taskExists) {
-          listOnTask.tasks.push({ taskId, taskTitle });
-        }
-      }
-    });
-
-    socket.on("updatedTask", (response) => {
-      const { oldListId, newListId, taskId, taskTitle } = response;
-
-      // Remove task from old list
-      const oldList = $state.lists.find((list) => list.listId === oldListId);
-      if (oldList) {
-        const taskIndex = oldList.tasks.findIndex(
-          (task) => task.taskId === taskId
-        );
-        if (taskIndex > -1) {
-          oldList.tasks.splice(taskIndex, 1);
-        }
-      }
-
-      // Add task to new list
-      const newList = $state.lists.find((list) => list.listId === newListId);
-      if (newList) {
-        const taskExists = newList.tasks.some((task) => task.taskId === taskId);
-        if (!taskExists) {
-          newList.tasks.push({ taskId, taskTitle });
-        }
-      }
-    });
+    setupSocketListener(boardId);
 
     $state.lists = lists;
   } catch (error) {
@@ -338,58 +282,68 @@ const getListData = async () => {
   }
 };
 
-watch(route, (newRoute) => {
-  const boardId = newRoute.params.boardId;
-  if (boardId) {
-    setBoardAndSlug($state.boardSelected, boardId);
-    getListData();
-  }
-});
+const setupSocketListener = (boardId) => {
+  // socket.emit("join-board", boardId);
 
-onMounted(() => {
-  const boardId = route.params.boardId;
-  if (boardId) {
-    setBoardAndSlug($state.boardSelected, boardId);
-    getListData();
-  }
-});
+  socket.on("createdList", (response) => {
+    const listExists = $state.lists.some(
+      (list) => list.listId === response.listId
+    );
 
-const showForm = () => {
-  isFormVisible.value = true;
+    if (!listExists) {
+      $state.lists.push(response);
+    }
+  });
+
+  socket.on("createdTask", (response) => {
+    const { listId, taskTitle, taskId } = response;
+
+    const listOnTask = $state.lists.find((list) => list.listId === listId);
+
+    if (listOnTask) {
+      const taskExists = listOnTask.tasks.some(
+        (task) => task.taskId === taskId
+      );
+      if (!taskExists) {
+        listOnTask.tasks.push({ taskId, taskTitle });
+      }
+    }
+  });
+
+  socket.on("updatedTask", (response) => {
+    const { oldListId, newListId, taskId, taskTitle } = response;
+
+    const oldList = $state.lists.find((list) => list.listId === oldListId);
+    if (oldList) {
+      const taskIndex = oldList.tasks.findIndex(
+        (task) => task.taskId === taskId
+      );
+      if (taskIndex > -1) {
+        oldList.tasks.splice(taskIndex, 1);
+      }
+    }
+
+    const newList = $state.lists.find((list) => list.listId === newListId);
+    if (newList) {
+      const taskExists = newList.tasks.some((task) => task.taskId === taskId);
+      if (!taskExists) {
+        newList.tasks.push({ taskId, taskTitle });
+      }
+    }
+  });
 };
 
-const cancelForm = () => {
-  isFormVisible.value = false;
-  listTitle.value = "";
-};
-
-const ButtonTask = (listId) => {
-  if (selectedListId.value === listId) {
-    selectedListId.value = null;
-    buttonTaskHidden.value = true;
-  } else {
-    selectedListId.value = listId;
-    buttonTaskHidden.value = false;
-  }
-};
-
-const close = () => {
-  taskTitle.value = "";
-  selectedListId.value = null;
-};
-
-const formTask = async (listId) => {
-  const validationData = {
-    taskTitle: taskTitle.value,
-  };
-
+const validateTaskTitle = (title) => {
   const schema = Joi.object({
     taskTitle: Joi.string().required().messages({
       "string.empty": "Task title is not allowed to be empty",
     }),
   });
+  return schema.validate({ taskTitle: title }, { abortEarly: false });
+};
 
-  const { error } = schema.validate(validationData, { abortEarly: false });
+const formTask = async (listId) => {
+  const { error } = validateTaskTitle(taskTitle.value);
 
   if (error) {
     errorMessageTask.value = error.details.map((detail) =>
@@ -445,6 +399,41 @@ const onEnd = async (event) => {
   } catch (error) {
     errorMessageTask.value = ["Error updating task order"];
   }
+};
+
+watch(route, (newRoute) => {
+  const boardId = newRoute.params.boardId;
+  if (boardId) {
+    setBoardAndSlug($state.boardSelected, boardId);
+    getListData();
+  }
+});
+
+onMounted(() => {
+  const boardId = route.params.boardId;
+  if (boardId) {
+    setBoardAndSlug($state.boardSelected, boardId);
+    getListData();
+  }
+});
+
+const showForm = () => {
+  isFormVisible.value = true;
+};
+
+const cancelForm = () => {
+  isFormVisible.value = false;
+  listTitle.value = "";
+};
+
+const ButtonTask = (listId) => {
+  selectedListId.value = selectedListId.value === listId ? null : listId;
+  buttonTaskHidden.value = !buttonTaskHidden.value;
+};
+
+const close = () => {
+  taskTitle.value = "";
+  selectedListId.value = null;
 };
 
 const formatErrorMessage = (message) => {

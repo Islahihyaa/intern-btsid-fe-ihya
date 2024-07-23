@@ -15,16 +15,15 @@
 </template>
 
 <script setup>
-import { defineProps } from "vue";
+import { defineProps, onMounted } from "vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
 import Menu from "@/views/Menu.vue";
 import { defineEmits } from "vue";
-import { useBoardStore } from "@/store/board";
 import { computed } from "vue";
 import { useRoute } from "vue-router";
+import socket from "@/socket";
 
-const boardStore = useBoardStore();
 defineEmits(["cancel"]);
 
 const props = defineProps({
@@ -34,4 +33,14 @@ const props = defineProps({
 const route = useRoute();
 
 const isHomeMenu = computed(() => route.name === "Home");
+
+const setupSocket = () => {
+  const token = localStorage.getItem("token");
+  socket.auth.token = token;
+  socket.connect();
+};
+
+onMounted(() => {
+  setupSocket();
+});
 </script>

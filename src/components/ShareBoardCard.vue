@@ -49,10 +49,10 @@ import { useRoute } from "vue-router";
 import socket from "@/socket";
 
 const popupVisible = ref(true);
-const route = useRoute();
 const collaboratorEmail = ref("");
 const errorMessageShare = ref([]);
 
+const route = useRoute();
 const boardStore = useBoardStore();
 
 const formShareBoard = async () => {
@@ -88,18 +88,10 @@ const formShareBoard = async () => {
 
     const accessToken = localStorage.getItem("token");
 
-    await sharedBoard(emailData, accessToken, boardId);
+    const response = await sharedBoard(emailData, accessToken, boardId);
+    console.log('response',response.data)
 
-    socket.emit("join-board", boardId);
-
-    socket.on("joinedBoard", (response) => {
-      // const listExists = $state.lists.some(
-      //   (list) => list.listId === response.listId
-      // );
-      console.log(response);
-
-      // $state.sharedBoards.push(response);
-    }); 
+    socket.emit("join-board", response.data);
 
     popupVisible.value = false;
 
