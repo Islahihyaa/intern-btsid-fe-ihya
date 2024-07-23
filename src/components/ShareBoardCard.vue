@@ -89,9 +89,18 @@ const formShareBoard = async () => {
     const accessToken = localStorage.getItem("token");
 
     const response = await sharedBoard(emailData, accessToken, boardId);
-    console.log('response',response.data)
+    console.log("response", response.data);
 
     socket.emit("join-board", response.data);
+
+    // socket.on("joinedBoard", (boardData) => {
+    //   // const listExists = $state.lists.some(
+    //   //   (list) => list.listId === response.listId
+    //   // );
+    //   $state.sharedBoards.push(boardData);
+    //   console.log("joined", boardData);
+
+    // });
 
     popupVisible.value = false;
 

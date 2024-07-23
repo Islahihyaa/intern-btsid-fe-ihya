@@ -62,9 +62,10 @@ export const useBoardStore = defineStore("board", {
           // const listExists = $state.lists.some(
           //   (list) => list.listId === response.listId
           // );
+          this.sharedBoards.push(boardData);
+          
           console.log("joined", boardData);
 
-          this.sharedBoards.push(boardData);
         });
       } catch (error) {
         console.error("Error fetching boards:", error);
