@@ -86,19 +86,41 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { register } from "@/services/authService";
-import Joi from "joi";
+import { ref } from 'vue';
+import Joi from 'joi';
+import { register } from '@/services/authService'; // Pastikan path sesuai
 
-const email = ref("");
-const name = ref("");
-const password = ref("");
-const passwordConfirmation = ref("");
+const email = ref('');
+const name = ref('');
+const password = ref('');
+const passwordConfirmation = ref('');
 const errorMessages = ref([]);
-const successMessage = ref("");
+const successMessage = ref('');
 const loading = ref(false);
 
+const schema = Joi.object({
+  email: Joi.string().email({ tlds: { allow: false } }).required().messages({
+    'string.email': 'Email must be a valid email',
+    'string.empty': 'Email is not allowed to be empty',
+  }),
+  name: Joi.string().min(3).required().messages({
+    'string.empty': 'Name is not allowed to be empty',
+    'string.min': 'Name must be at least {#limit} characters long',
+  }),
+  password: Joi.string().min(4).required().messages({
+    'string.empty': 'Password is not allowed to be empty',
+    'string.min': 'Password must be at least {#limit} characters long',
+  }),
+  passwordConfirmation: Joi.string().valid(Joi.ref('password')).required().messages({
+    'any.only': 'Password confirmation must match the password',
+    'string.empty': 'Password confirmation is required',
+  }),
+});
+
 const handleRegister = async () => {
+  successMessage.value = '';
+  errorMessages.value = [];
+
   const userData = {
     email: email.value,
     name: name.value,
@@ -106,82 +128,28 @@ const handleRegister = async () => {
     passwordConfirmation: passwordConfirmation.value,
   };
 
-  const schema = Joi.object({
-    email: Joi.string()
-      .email({ tlds: { allow: false } })
-      .required()
-      .messages({
-        "string.email": "Email must be a valid email",
-        "string.empty": "Email is not allowed to be empty",
-      }),
-    name: Joi.string().min(3).required().messages({
-      "string.empty": "Name is not allowed to be empty",
-      "string.min": "Name must be at least {#limit} characters long",
-    }),
-    password: Joi.string().min(4).required().messages({
-      "string.empty": "Password is not allowed to be empty",
-      "string.min": "Password must be at least {#limit} characters long",
-    }),
-    passwordConfirmation: Joi.valid(Joi.ref("password")).messages({
-      "any.only": "Password confirmation must match the password",
-    }),
-  });
-
   const { error } = schema.validate(userData, { abortEarly: false });
 
   if (error) {
-    errorMessages.value = error.details.map((detail) =>
-      detail.message.replace(/['"]/g, "")
-    );
+    errorMessages.value = error.details.map((detail) => detail.message);
     return;
   }
+
   loading.value = true;
+
   try {
     await register(userData);
-
-    successMessage.value = "Please check your email!";
-
-    email.value = "";
-    name.value = "";
-    password.value = "";
-    passwordConfirmation.value = "";
-  } catch (error) {
-    if (error.error && error.error.message) {
-      errorMessages.value = formatErrorMessage(error.error.message);
-    } else {
-      errorMessages.value = [
-        "An error occurred while registering. Please try again later.",
-      ];
-    }
+    successMessage.value = 'Please check your email!';
+    email.value = '';
+    name.value = '';
+    password.value = '';
+    passwordConfirmation.value = '';
+  } catch (err) {
+    errorMessages.value = [
+      err.response?.data?.error || 'An error occurred while registering. Please try again later.',
+    ];
   } finally {
     loading.value = false;
   }
-};
-
-const formatErrorMessage = (message) => {
-  const messages = message.split("; ");
-  const formattedMessages = messages.map((msg) => {
-    if (msg.includes("Invalid email")) {
-      return "Invalid email format";
-    }
-
-    const charMatch = msg.match(
-      /String must contain at least (\d+) character\(s\) at "(.*?)"/
-    );
-
-    if (charMatch) {
-      const [, charCount, field] = charMatch;
-      return `${capitalizeFirstLetter(
-        field
-      )} must contain at least ${charCount} characters`;
-    }
-    return msg;
-  });
-
-  return formattedMessages;
-};
-
-const capitalizeFirstLetter = (string) => {
-  return string.charAt(0).toUpperCase() + string.slice(1);
 };
 </script>

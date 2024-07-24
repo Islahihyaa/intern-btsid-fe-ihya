@@ -4,9 +4,10 @@ import { jwtDecode } from "jwt-decode";
 export const register = async (userData) => {
   try {
     const response = await axiosInstance.post("/users/register", userData);
-    return response.data;
+    return response;
   } catch (error) {
-    throw error.response.data;
+    const errorMessage = error.response?.data?.error.message || 'An unknown error occurred';
+    throw new Error(errorMessage);
   }
 };
 
