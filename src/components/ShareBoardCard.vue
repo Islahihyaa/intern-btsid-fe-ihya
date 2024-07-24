@@ -90,7 +90,7 @@ const formShareBoard = async () => {
 
     const response = await sharedBoard(emailData, accessToken, boardId);
 
-    socket.emit("join-board", response.data);
+    socket.emit("notifyCollaborator", response.data);
 
     popupVisible.value = false;
 

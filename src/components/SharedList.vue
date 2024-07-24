@@ -270,10 +270,18 @@ const getListData = async () => {
     const accessToken = localStorage.getItem("token");
     const boardId = route.params.boardId;
 
+
+    // if (!boardData) {
+    //   throw new Error("No board data available");
+    // }
+
+    // socket.emit("join-board", boardData);
+
     const response = await getList(accessToken, boardId);
     const lists = response.data;
 
     setupSocketListener(boardId);
+
 
     $state.lists = lists;
   } catch (error) {
@@ -281,7 +289,12 @@ const getListData = async () => {
   }
 };
 
-const setupSocketListener = () => {
+const setupSocketListener = (boardId) => {
+  socket.emit("join-board", boardId);
+
+  // socket.on("joinedBoard", (response) => {
+  //   console.log(response)
+  // });
 
   socket.on("createdList", (response) => {
     const listExists = $state.lists.some(
