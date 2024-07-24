@@ -56,15 +56,6 @@ export const useBoardStore = defineStore("board", {
         const accessToken = localStorage.getItem("token");
 
         await getSharedBoard(accessToken);
-        // const dataBoard = response.data
-        // const boardComputed = computed(() => {
-        //   return dataBoard.find(
-        //     (item) => (item.board.boardId = route.params.boardId)
-        //   );
-        // });
-        // console.log('asd',boardComputed);
-
-        // socket.emit("join-board", response.data);
 
         socket.on("notifiedCollaborator", (boardData) => {
           this.sharedBoards.push(boardData);
