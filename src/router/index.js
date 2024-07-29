@@ -1,13 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Login from "@/views/auth/Login.vue";
-import Register from "@/views/auth/Register.vue";
-import ResetPassword from "@/views/auth/ResetPassword.vue";
-import ConfirmResetPassword from "@/views/auth/ConfirmResetPassword.vue";
-import RegistrationConfirmation from "@/views/auth/RegistrationConfirmation.vue";
 import Home from "@/views/Home.vue";
 import ListCard from "@/components/ListCard.vue";
 import SharedList from "@/components/SharedList.vue";
 import { isAuthenticated } from "@/services/authService";
+import AuthPage from "@/views/auth/AuthPage.vue";
 
 const routes = [
   {
@@ -17,27 +13,27 @@ const routes = [
   {
     path: "/login",
     name: "Login",
-    component: Login,
-  },
-  {
-    path: "/users/reset-password/:urlResetToken",
-    name: "ConfirmReset",
-    component: ConfirmResetPassword,
-  },
-  {
-    path: "/users/verify/:urlRegistrationToken",
-    name: "ConfirmReset",
-    component: RegistrationConfirmation,
+    component: AuthPage,
   },
   {
     path: "/register",
     name: "Register",
-    component: Register,
+    component: AuthPage,
   },
   {
-    path: "/reset-password",
+    path: "/forget-password",
     name: "resetPassword",
-    component: ResetPassword,
+    component: AuthPage,
+  },
+  {
+    path: "/users/reset-password/:urlResetToken",
+    name: "ConfirmReset",
+    component: AuthPage,
+  },
+  {
+    path: "/users/verify/:urlRegistrationToken",
+    name: "ConfirmVerify",
+    component: AuthPage,
   },
   {
     path: "/board",
