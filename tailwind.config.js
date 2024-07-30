@@ -28,6 +28,7 @@ export default {
       },
       colors: {
         primary: "#1A56DB",
+        blueLight: "#3b82f6",
       },
       },
     },
