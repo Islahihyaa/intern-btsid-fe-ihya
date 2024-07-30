@@ -1,79 +1,40 @@
 <template>
-  <div class="flex justify-center items-center mb-8">
-    <h1 class="font-sans text-3xl font-semibold text-white">Register</h1>
+  <div class="card-tilte">
+    <h1 class="text-title">Register</h1>
   </div>
 
-  <div v-if="errorMessages.length > 0">
-    <div
-      v-for="(errorMessage, index) in errorMessages"
-      :key="index"
-      class="bg-red-300 border border-red-400 text-red-700 px-2 py-1 rounded relative flex justify-center mb-3"
-    >
-      {{ errorMessage }}
-    </div>
-  </div>
+  <AlertMessage
+    v-if="successMessage"
+    :message="successMessage"
+    type="success"
+  />
 
-  <div v-if="successMessage.length > 0">
-    <div
-      class="bg-green-300 border border-green-400 text-green-700 px-2 py-1 rounded relative flex justify-center mb-3"
-    >
-      {{ successMessage }}
-    </div>
-  </div>
+  <AlertMessage
+    v-for="(msg, index) in errorMessages"
+    :key="index"
+    :message="msg"
+    type="error"
+  />
 
   <form @submit.prevent="handleRegister">
-    <div class="mb-4 text-lg">
-      <input
-        type="text"
-        placeholder="Email"
-        v-model="email"
-        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-500"
-      />
-    </div>
-    <div class="mb-4 text-lg">
-      <input
-        type="text"
-        placeholder="Name"
-        v-model="name"
-        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-500"
-      />
-    </div>
-    <div class="mb-4 text-lg">
-      <input
-        type="password"
-        placeholder="Create Password"
-        v-model="password"
-        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-500"
-      />
-    </div>
-    <div class="mb-4 text-lg">
-      <input
-        type="password"
-        placeholder="Confirm Password"
-        v-model="passwordConfirmation"
-        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-500 placeholder-gray-400"
-      />
-    </div>
+    <Input type="email" placeholder="Email" v-model="email" />
+    <Input type="text" placeholder="Name" v-model="name" />
+    <Input type="password" placeholder="Create Password" v-model="password" />
+    <Input
+      type="password"
+      placeholder="Confirm Password"
+      v-model="passwordConfirmation"
+    />
 
-    <button
-      v-if="!loading"
-      type="submit"
-      class="w-full px-4 py-2 text-lg my-4 bg-primary text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring"
-    >
-      Register
-    </button>
-    <button
-      v-if="loading"
-      class="w-full px-4 py-2 text-lg my-4 bg-primary text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring"
-      disabled
-    >
-      <span class="loading loading-spinner loading-md"></span>
-    </button>
+    <ButtonAuth v-if="!loading" type="submit">Register</ButtonAuth>
+    <ButtonAuth v-if="loading" disabled>
+      <span class="loading loading-spinner loading-md" />
+    </ButtonAuth>
   </form>
 
-  <p class="text-sm text-gray-100 mt-4">
+  <p class="text-account">
     <span>Already have an account?</span>
-    <RouterLink to="/login" class="text-blue-500"> Login Here </RouterLink>
+    <RouterLink to="/login" class="text-blueLight"> Login Here </RouterLink>
   </p>
 </template>
 
@@ -81,13 +42,23 @@
 import { ref } from "vue";
 import Joi from "joi";
 import { register } from "@/services/authService";
+import ButtonAuth from "../ui/ButtonAuth.vue";
+import AlertMessage from "../ui/AlertMessage.vue";
+import Input from "../ui/Input.vue";
+import {
+  handleError,
+  handleSuccess,
+  resetForm,
+  resetMessage,
+  setLoading,
+} from "@/utils/errorUtils";
 
 const email = ref("");
 const name = ref("");
 const password = ref("");
 const passwordConfirmation = ref("");
-const errorMessages = ref([]);
 const successMessage = ref("");
+const errorMessages = ref([]);
 const loading = ref(false);
 
 const schema = Joi.object({
@@ -116,8 +87,7 @@ const schema = Joi.object({
 });
 
 const handleRegister = async () => {
-  successMessage.value = "";
-  errorMessages.value = [];
+  resetMessage(successMessage, errorMessages);
 
   const userData = {
     email: email.value,
@@ -133,24 +103,26 @@ const handleRegister = async () => {
     return;
   }
 
-  loading.value = true;
+  setLoading(loading, true);
 
   try {
     await register(userData);
-    successMessage.value = "Please check your email!";
-    email.value = "";
-    name.value = "";
-    password.value = "";
-    passwordConfirmation.value = "";
+    handleSuccess(
+      successMessage,
+      () => resetMessage(successMessage, errorMessages),
+      () => resetForm(email, name, password, passwordConfirmation),
+      (value) => setLoading(loading, value)
+    );
   } catch (err) {
-    console.log(err)
-    errorMessages.value = [ err ||
-      err.response?.data?.error ||
-        "An error occurred while registering. Please try again later.",
-    ];
-    loading.value = false;
+    handleError(
+      err,
+      (value) => setLoading(loading, value),
+      () => resetMessage(successMessage, errorMessages),
+      errorMessages,
+      () => resetForm(email, name, password, passwordConfirmation)
+    );
   } finally {
-    loading.value = false;
+    setLoading(loading, false);
   }
 };
 </script>

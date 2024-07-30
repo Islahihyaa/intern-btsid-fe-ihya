@@ -1,52 +1,29 @@
 <template>
-  <div class="flex justify-center items-center mb-8">
-    <h1 class="font-sans text-3xl font-semibold text-white">Login</h1>
+  <div class="card-tilte">
+    <h1 class="text-title">Login</h1>
   </div>
 
-  <div v-if="errorMessage.length > 0">
-    <div
-      v-for="(msg, index) in errorMessage"
-      :key="index"
-      class="bg-red-300 border border-red-400 text-red-700 text-xs px-2 py-1 rounded relative flex justify-center mb-3"
-    >
-      {{ msg }}
-    </div>
-  </div>
+  <AlertMessage
+    v-for="(msg, index) in errorMessages"
+    :key="index"
+    :message="msg"
+    type="error"
+  />
 
   <form @submit.prevent="handleLogin">
-    <div class="mb-4 text-lg">
-      <input
-        type="email"
-        placeholder="Email"
-        v-model="email"
-        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-500"
-      />
-    </div>
-    <div class="mb-4 text-lg">
-      <input
-        type="password"
-        placeholder="Password"
-        v-model="password"
-        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-500"
-      />
-    </div>
+    <Input type="email" placeholder="Email" v-model="email" />
+    <Input type="password" placeholder="Password" v-model="password" />
     <div>
-      <RouterLink to="/forget-password" class="text-blue-400">
+      <RouterLink to="/forget-password" class="text-blueLight">
         Forget Password
       </RouterLink>
     </div>
-
-    <button
-      type="submit"
-      class="w-full px-4 py-2 text-lg my-4 bg-primary text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring"
-    >
-      Login
-    </button>
+    <ButtonAuth type="submit">Login</ButtonAuth>
   </form>
 
-  <p class="text-sm text-gray-100 mt-4">
+  <p class="text-account">
     <span>Don't have an account?</span>
-    <RouterLink to="/register" class="text-blue-500">
+    <RouterLink to="/register" class="text-blueLight">
       Register Here
     </RouterLink>
   </p>
@@ -57,10 +34,14 @@ import Joi from "joi";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { login } from "@/services/authService";
+import ButtonAuth from "../ui/ButtonAuth.vue";
+import AlertMessage from "../ui/AlertMessage.vue";
+import Input from "../ui/Input.vue";
+import { resetForm, handleError, resetMessage } from "@/utils/errorUtils";
 
 const email = ref("");
 const password = ref("");
-const errorMessage = ref([]);
+const errorMessages = ref([]);
 const router = useRouter();
 
 const handleLogin = async () => {
@@ -85,7 +66,7 @@ const handleLogin = async () => {
   const { error } = schema.validate(userData, { abortEarly: false });
 
   if (error) {
-    errorMessage.value = error.details.map((detail) =>
+    errorMessages.value = error.details.map((detail) =>
       detail.message.replace(/['"]/g, "")
     );
     return;
@@ -96,21 +77,14 @@ const handleLogin = async () => {
 
     localStorage.getItem("token");
     router.push("/board");
-  } catch (error) {
-    if (error.error && error.error.message) {
-      errorMessage.value = [formatErrorMessage(error.error.message)];
-    } else {
-      errorMessage.value = [
-        "An error occurred while logging in. Please try again later.",
-      ];
-    }
+  } catch (err) {
+    handleError(
+      err,
+      null,
+      () => resetMessage(null, errorMessages),
+      errorMessages,
+      () => resetForm(email, password)
+    );
   }
-};
-
-const formatErrorMessage = (message) => {
-  if (message.includes("Invalid email")) {
-    return "Invalid Email Format";
-  }
-  return "Login failed: " + message;
 };
 </script>
