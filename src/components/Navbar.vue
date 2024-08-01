@@ -4,12 +4,9 @@
       <a class="btn btn-ghost text-2xl">
         <router-link to="/board"> Trello App </router-link>
       </a>
-      <button
-        @click="() => TogglePopup('buttonTriggers')"
-        class="px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+      <ButtonBoard @click="() => TogglePopup('buttonTriggers')"
+        >Create</ButtonBoard
       >
-        Create
-      </button>
       <BoardCard
         v-if="cardTriggers.buttonTriggers"
         :TogglePopup="() => TogglePopup('buttonTriggers')"
@@ -46,6 +43,7 @@ import { useRouter } from "vue-router";
 import BoardCard from "@/components/BoardCard.vue";
 import { logout } from "@/services/authService";
 import socket from "@/socket";
+import ButtonBoard from "@/components/ui/ButtonBoard.vue";
 
 const userName = ref("");
 const errorMessage = ref("");
