@@ -30,24 +30,3 @@ const toggleProfileCard = () => {
   showProfile.value = !showProfile.value;
 };
 </script>
-
-<style>
-.avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 35px;
-  height: 35px;
-  background-color: #002aff;
-  border-radius: 50%;
-  color: #fff;
-  font-weight: bold;
-  font-size: 1.2em;
-  margin-left: 2px;
-  cursor: pointer;
-}
-
-span {
-  font-size: 16px;
-}
-</style>
