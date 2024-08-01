@@ -16,9 +16,9 @@
 
 <script setup>
 import { defineProps, onMounted } from "vue";
-import Navbar from "@/components/Navbar.vue";
-import Sidebar from "@/components/Sidebar.vue";
-import Menu from "@/views/Menu.vue";
+import Navbar from "@/components/layout/Navbar.vue";
+import Sidebar from "@/components/layout/Sidebar.vue";
+import Menu from "@/components/layout/Menu.vue";
 import { defineEmits } from "vue";
 import { computed } from "vue";
 import { useRoute } from "vue-router";

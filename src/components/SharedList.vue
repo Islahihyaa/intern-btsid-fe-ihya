@@ -184,7 +184,7 @@ import { useBoardStore } from "@/store/board";
 import { ref, computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import draggable from "vuedraggable";
-import Avatar from "./Avatar.vue";
+import Avatar from "./profile/Avatar.vue";
 import socket from "@/socket";
 
 const errorMessageList = ref([]);
