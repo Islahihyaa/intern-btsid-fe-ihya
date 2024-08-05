@@ -7,7 +7,7 @@
       <ButtonBoard @click="() => TogglePopup('buttonTriggers')"
         >Create</ButtonBoard
       >
-      <BoardCard
+      <CreateBoardForm
         v-if="cardTriggers.buttonTriggers"
         :TogglePopup="() => TogglePopup('buttonTriggers')"
       />
@@ -40,7 +40,7 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import BoardCard from "@/components/BoardCard.vue";
+import CreateBoardForm from "../modals/CreateBoardForm.vue";
 import { logout } from "@/services/authService";
 import socket from "@/socket";
 import ButtonBoard from "@/components/ui/ButtonBoard.vue";
@@ -51,7 +51,6 @@ const errorMessage = ref("");
 const cardTriggers = ref({
   buttonTriggers: false,
 });
-
 const router = useRouter();
 
 const getUserNameFromLocalStorage = () => {

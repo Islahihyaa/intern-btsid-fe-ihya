@@ -177,7 +177,7 @@
 
 <script setup>
 import Joi from "joi";
-import ShareBoardCard from "@/components/ShareBoardCard.vue";
+import ShareBoardCard from "./modals/ShareBoardCard.vue";
 import { createList, getList } from "@/services/listService";
 import { createTask, updateTaskOrder } from "@/services/taskService";
 import { useBoardStore } from "@/store/board";

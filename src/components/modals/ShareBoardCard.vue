@@ -5,15 +5,15 @@
   >
     <div class="card w-96 bg-base-100 shadow-xl">
       <div class="card-body">
-        <h2 class="card-title mb-4">Create Board</h2>
-        <form @submit.prevent="handleBoard">
+        <h2 class="card-title">Share Board</h2>
+        <form @submit.prevent="formShareBoard">
           <div class="mb-4 text-lg">
-            <label for="title">Title Board</label>
+            <label for="title">Input email</label>
             <Input
               type="text"
-              placeholder="Enter title here ..."
-              v-model="boardTitle"
-              class="my-2"
+              placeholder="Email address ..."
+              v-model="collaboratorEmail"
+              class="my-4"
             />
             <AlertMessage
               v-for="(msg, index) in errorMessages"
@@ -23,9 +23,9 @@
               class="text-xs px-2 py-1"
             />
           </div>
-          <div class="card-actions justify-end items-center">
+          <div class="card-actions justify-end">
             <ButtonCancel @click="closePopup">Cancel</ButtonCancel>
-            <ButtonSubmit>Create</ButtonSubmit>
+            <ButtonSubmit>Share</ButtonSubmit>
           </div>
         </form>
       </div>
@@ -36,28 +36,37 @@
 <script setup>
 import Joi from "joi";
 import { ref } from "vue";
-import { createBoard } from "@/services/boardService";
+import { sharedBoard } from "@/services/boardService";
 import { useBoardStore } from "@/store/board";
-import Input from "./ui/Input.vue";
-import ButtonSubmit from "./ui/ButtonSubmit.vue";
-import ButtonCancel from "./ui/ButtonCancel.vue";
-import AlertMessage from "./ui/AlertMessage.vue";
+import { useRoute } from "vue-router";
+import router from "@/router";
+import socket from "@/socket";
+import Input from "../ui/Input.vue";
+import ButtonCancel from "../ui/ButtonCancel.vue";
+import ButtonSubmit from "../ui/ButtonSubmit.vue";
+import AlertMessage from "../ui/AlertMessage.vue";
 import { handleError, resetForm, resetMessage } from "@/utils/errorUtils";
 
-const errorMessages = ref([]);
-const boardTitle = ref("");
 const popupVisible = ref(true);
+const collaboratorEmail = ref("");
+const errorMessages = ref([]);
 
+const route = useRoute();
 const boardStore = useBoardStore();
 
-const handleBoard = async () => {
+const formShareBoard = async () => {
   const validationData = {
-    boardTitle: boardTitle.value,
+    collaboratorEmail: collaboratorEmail.value,
   };
+
   const schema = Joi.object({
-    boardTitle: Joi.string().required().messages({
-      "string.empty": "Board title cannot be blank",
-    }),
+    collaboratorEmail: Joi.string()
+      .email({ tlds: { allow: false } })
+      .required()
+      .messages({
+        "string.email": "Email must be a valid email",
+        "string.empty": "Email is not allowed to be empty",
+      }),
   });
 
   const { error } = schema.validate(validationData, { abortEarly: false });
@@ -70,31 +79,27 @@ const handleBoard = async () => {
   }
 
   try {
-    const userId = JSON.parse(localStorage.getItem("userData")).userId;
-
-    const boardData = {
-      boardTitle: boardTitle.value,
-      authorId: userId,
+    const emailData = {
+      collaboratorEmail: collaboratorEmail.value,
     };
-
+    const boardId = route.params.boardId;
     const accessToken = localStorage.getItem("token");
+    const response = await sharedBoard(emailData, accessToken, boardId);
 
-    if (!accessToken || !userId) {
-      throw new Error("Access token or userId not found");
-    }
+    socket.emit("notifyCollaborator", response.data);
 
-    await createBoard(boardData, accessToken);
-
-    boardStore.addBoard(boardData);
     popupVisible.value = false;
+    router.push("/board");
+
     boardStore.getBoardData();
+    boardStore.getSharedBoardData();
   } catch (err) {
     handleError(
       err,
       null,
       () => resetMessage(null, errorMessages),
       errorMessages,
-      () => resetForm(boardTitle)
+      () => resetForm(collaboratorEmail)
     );
   }
 };

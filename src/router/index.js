@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "@/views/Home.vue";
-import ListCard from "@/components/ListCard.vue";
+import ListPage from "@/components/ListPage.vue";
 import SharedList from "@/components/SharedList.vue";
 import { isAuthenticated } from "@/services/authService";
 import AuthPage from "@/views/auth/AuthPage.vue";
@@ -49,7 +49,7 @@ const routes = [
       {
         path: "",
         name: "ListCard",
-        component: ListCard,
+        component: ListPage,
       },
     ],
     meta: { requiresAuth: true },
