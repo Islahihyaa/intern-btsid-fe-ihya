@@ -31,7 +31,7 @@
           </template>
         </draggable>
 
-        <AddTaskForm :list="list" />
+        <AddTaskForm :list="list" @addedTask="handleAddedTask" />
       </div>
 
       <AddListForm
@@ -86,6 +86,10 @@ const listComputed = computed(() => $state.lists);
 const handleAddedList = (value) => {
   socket.emit("createList", value);
   getListData();
+};
+
+const handleAddedTask = (value) => {
+  socket.emit("createTask", value);
 };
 
 const getListData = async () => {

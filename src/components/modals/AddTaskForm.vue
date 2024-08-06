@@ -73,6 +73,8 @@ const selectedListId = ref(null);
 const buttonTaskHidden = ref(true);
 const boardStore = useBoardStore();
 
+const emit = defineEmits(["addedTask"]);
+
 const handleCreateTask = async (listId) => {
   const validationData = {
     taskTitle: taskTitle.value,
@@ -106,6 +108,7 @@ const handleCreateTask = async (listId) => {
 
     boardStore.addTask({ listId, task: createdTask });
     taskTitle.value = "";
+    emit("addedTask", createdTask);
   } catch (error) {
     if (error.error && error.error.message) {
       errorMessages.value = [formatErrorMessage(error.error.message)];
