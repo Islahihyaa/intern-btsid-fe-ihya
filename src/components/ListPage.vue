@@ -1,9 +1,7 @@
 <template>
   <BoardHeader :boardComputed="boardComputed" />
 
-  <ButtonAddList :isFormVisible="isFormVisible" @show-form="showForm"
-    >Add List</ButtonAddList
-  >
+  <ButtonAddList :isFormVisible="isFormVisible" @show-form="showForm" />
 
   <div class="m-4 overflow-x-auto h-screen">
     <div class="flex items-baseline">
@@ -56,14 +54,19 @@ import ButtonAddList from "./ui/ButtonAddList.vue";
 import AddListForm from "./modals/AddListForm.vue";
 import AddTaskForm from "./modals/AddTaskForm.vue";
 import BoardHeader from "./layout/BoardHeader.vue";
+import useFormVisibility from "./composable/useFormVisibility";
 
 const errorMessageTask = ref([]);
-const isFormVisible = ref(false);
-const listTitle = ref("");
 
 const route = useRoute();
 const boardStore = useBoardStore();
 const { $state, setBoardAndSlug } = boardStore;
+
+const {
+  isFormVisible: isFormVisible,
+  showForm,
+  cancelForm,
+} = useFormVisibility();
 
 const boardComputed = computed(() => {
   return $state.boards.find((item) => item.boardId === route.params.boardId);
@@ -103,15 +106,6 @@ onMounted(() => {
     getListData();
   }
 });
-
-const showForm = () => {
-  isFormVisible.value = true;
-};
-
-const cancelForm = () => {
-  isFormVisible.value = false;
-  listTitle.value = "";
-};
 
 const onEnd = async (event) => {
   try {

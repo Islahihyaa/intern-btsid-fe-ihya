@@ -1,7 +1,12 @@
 <template>
   <form @submit.prevent="handleCreateTask(list.listId)">
     <div v-if="selectedListId === list.listId">
-      <Input type="text" placeholder="Enter task..." v-model="taskTitle" class="my-4"/>
+      <Input
+        type="text"
+        placeholder="Enter task..."
+        v-model="taskTitle"
+        class="my-4"
+      />
       <div v-if="errorMessages">
         <p
           v-for="(msg, index) in errorMessages"
@@ -13,18 +18,10 @@
       </div>
     </div>
     <div class="flex items-center">
-      <button
-        v-if="selectedListId === list.listId"
-        type="submit"
-        class="btn btn-ghost"
-      >
+      <ButtonCancel v-if="selectedListId === list.listId" type="submit">
         Add Task
-      </button>
-      <button
-        v-if="selectedListId === list.listId"
-        @click="close"
-        class="btn btn-ghost"
-      >
+      </ButtonCancel>
+      <ButtonCancel v-if="selectedListId === list.listId" @click="close">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -39,15 +36,15 @@
             d="M6 18 18 6M6 6l12 12"
           />
         </svg>
-      </button>
+      </ButtonCancel>
     </div>
-    <button
+    <ButtonCancel
       v-if="selectedListId !== list.listId"
       @click="ButtonTask(list.listId)"
-      class="btn btn-ghost w-full"
+      class="w-full"
     >
       Add Task
-    </button>
+    </ButtonCancel>
   </form>
 </template>
 
@@ -57,23 +54,24 @@ import Joi from "joi";
 import { ref } from "vue";
 import Input from "../ui/Input.vue";
 import { useBoardStore } from "@/store/board";
+import ButtonCancel from "../ui/ButtonCancel.vue";
 
 const props = defineProps({
   list: {
     type: Object,
     required: true,
   },
-  selectedListId: {
-    type: String,
-    required: true,
-  },
+  // selectedListId: {
+  //   type: String,
+  //   required: true,
+  // },
 });
 
 const taskTitle = ref("");
 const errorMessages = ref([]);
 const selectedListId = ref(null);
 const buttonTaskHidden = ref(true);
-const boardStore = useBoardStore()
+const boardStore = useBoardStore();
 
 const handleCreateTask = async (listId) => {
   const validationData = {

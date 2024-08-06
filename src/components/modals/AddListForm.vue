@@ -58,6 +58,8 @@ const listTitle = ref("");
 const errorMessages = ref(null);
 const boardStore = useBoardStore();
 
+const emit = defineEmits(["addedList"]);
+
 const handleList = async () => {
   resetMessage(null, errorMessages);
 
@@ -88,11 +90,13 @@ const handleList = async () => {
       boardId: boardIdData.boardId,
     };
     const accessToken = localStorage.getItem("token");
-
     const response = await createList(listData, accessToken);
+
     boardStore.addList(response);
     props.isFormVisible = false;
     listTitle.value = "";
+
+    emit("addedList", response);
   } catch (error) {
     console.log(error);
     handleError(

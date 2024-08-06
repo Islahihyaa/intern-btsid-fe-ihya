@@ -1,61 +1,7 @@
 <template>
-  <div
-    class="py-2 px-4 mb-8 shadow-md bg-gray-500 bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20"
-  >
-    <div class="flex justify-between items-center">
-      <div class="text-lg text-white">
-        {{ boardComputed ? boardComputed.board.boardTitle : "" }}
-      </div>
-      <div class="flex items-center">
-        <div v-if="boardComputed">
-          <Avatar :userName="boardComputed.board.author.userName" />
-        </div>
-        <div v-if="boardComputed && boardComputed.collaborators" class="mr-4">
-          <ul class="flex items-center">
-            <li
-              v-for="collaborator in collaboratorsUserNames"
-              :key="collaborator.userId"
-            >
-              <Avatar :userName="collaborator.userName" />
-            </li>
-          </ul>
-        </div>
-        <button
-          @click="() => TogglePopup('buttonTriggers')"
-          class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-        >
-          Share
-        </button>
-      </div>
-    </div>
-  </div>
-  <ShareBoardCard
-    v-if="cardTriggers.buttonTriggers"
-    :TogglePopup="() => TogglePopup('buttonTriggers')"
-  />
-  <button
-    v-if="!isFormVisible"
-    @click="showForm"
-    class="w-64 py-2 px-4 rounded-lg shadow-md bg-white bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20"
-  >
-    <div class="flex justify-start items-center">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="1.5"
-        stroke="currentColor"
-        class="size-6 text-white"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-        />
-      </svg>
-      <p class="ml-2 text-sm text-white">Add List</p>
-    </div>
-  </button>
+  <ShareBoardHeader :boardComputed="boardComputed" />
+
+  <ButtonAddList :isFormVisible="isFormVisible" @show-form="showForm" />
 
   <div class="m-4 overflow-x-auto h-screen">
     <div class="flex items-baseline">
@@ -85,127 +31,44 @@
           </template>
         </draggable>
 
-        <form @submit.prevent="formTask(list.listId)">
-          <div v-if="selectedListId === list.listId">
-            <input
-              type="text"
-              v-model="taskTitle"
-              placeholder="Enter task..."
-              class="w-full mb-4 mt-6 py-2 px-4 text-sm rounded-lg shadow-md bg-white bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20 focus:outline-none focus:ring focus:border-blue-500"
-            />
-            <div v-if="errorMessageTask">
-              <p
-                v-for="(msg, index) in errorMessageTask"
-                :key="index"
-                class="text-red-500 text-xs px-2 py-1 flex justify-center mb-3"
-              >
-                {{ msg }}
-              </p>
-            </div>
-          </div>
-          <div class="flex items-center">
-            <button
-              v-if="selectedListId === list.listId"
-              type="submit"
-              class="btn btn-ghost"
-            >
-              Add Task
-            </button>
-            <button
-              v-if="selectedListId === list.listId"
-              @click="close"
-              class="btn btn-ghost"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="size-6"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M6 18 18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-          <button
-            v-if="selectedListId !== list.listId"
-            @click="ButtonTask(list.listId)"
-            class="btn btn-ghost w-full"
-          >
-            Add Task
-          </button>
-        </form>
+        <AddTaskForm :list="list" />
       </div>
-      <div
-        v-if="isFormVisible"
-        class="flex-shrink-0 w-64 mx-4 my-2 py-2 px-4 rounded-lg shadow-md bg-black bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20"
-      >
-        <div class="flex justify-start items-center">
-          <form @submit.prevent="handleList">
-            <div class="mb-4 text-lg">
-              <label for="title">Title List</label>
-              <input
-                type="text"
-                v-model="listTitle"
-                class="w-full px-4 py-2 my-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-500"
-              />
-              <div v-if="errorMessageList">
-                <p
-                  v-for="(msg, index) in errorMessageList"
-                  :key="index"
-                  class="text-red-500 text-xs px-2 py-1 flex justify-center mb-3"
-                >
-                  {{ msg }}
-                </p>
-              </div>
-            </div>
-            <div class="card-actions justify-end">
-              <button class="btn btn-ghost" @click="cancelForm">Cancel</button>
-              <button type="submit" class="btn btn-primary">Create List</button>
-            </div>
-          </form>
-        </div>
-      </div>
+
+      <AddListForm
+        :isFormVisible="isFormVisible"
+        @cancel-form="cancelForm"
+        :boardComputed="boardIdData"
+        @addedList="handleAddedList"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
-import Joi from "joi";
-import ShareBoardCard from "./modals/ShareBoardCard.vue";
-import { createList, getList } from "@/services/listService";
-import { createTask, updateTaskOrder } from "@/services/taskService";
+import ShareBoardHeader from "./layout/ShareBoardHeader.vue";
+import { getList } from "@/services/listService";
+import { updateTaskOrder } from "@/services/taskService";
 import { useBoardStore } from "@/store/board";
 import { ref, computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import draggable from "vuedraggable";
-import Avatar from "./profile/Avatar.vue";
 import socket from "@/socket";
+import ButtonAddList from "./ui/ButtonAddList.vue";
+import AddTaskForm from "./modals/AddTaskForm.vue";
+import AddListForm from "./modals/AddListForm.vue";
+import useFormVisibility from "./composable/useFormVisibility";
 
-const errorMessageList = ref([]);
 const errorMessageTask = ref([]);
-const isFormVisible = ref(false);
-const buttonTaskHidden = ref(true);
-const selectedListId = ref(null);
-const listTitle = ref("");
-const taskTitle = ref("");
-
-const cardTriggers = ref({
-  buttonTriggers: false,
-});
 
 const route = useRoute();
 const boardStore = useBoardStore();
 const { $state, setBoardAndSlug } = boardStore;
 
-const TogglePopup = (trigger) => {
-  cardTriggers.value[trigger] = !cardTriggers.value[trigger];
-};
+const {
+  isFormVisible: isFormVisible,
+  showForm,
+  cancelForm,
+} = useFormVisibility();
 
 const boardComputed = computed(() => {
   return boardStore.$state.sharedBoards.find(
@@ -213,56 +76,16 @@ const boardComputed = computed(() => {
   );
 });
 
-const collaboratorsUserNames = computed(() => {
-  if (boardComputed.value && boardComputed.value.collaborators) {
-    return boardComputed.value.collaborators;
-  }
-  return [];
+const boardIdData = computed(() => {
+  const board = boardComputed.value;
+  return board ? board.board : null;
 });
 
 const listComputed = computed(() => $state.lists);
 
-const validateListTitle = (title) => {
-  const schema = Joi.object({
-    listTitle: Joi.string().required().messages({
-      "string.empty": "List title is not allowed to be empty",
-    }),
-  });
-  return schema.validate({ listTitle: title }, { abortEarly: false });
-};
-
-const handleList = async () => {
-  const { error } = validateListTitle(listTitle.value);
-
-  if (error) {
-    errorMessageList.value = error.details.map((detail) =>
-      detail.message.replace(/['"]/g, "")
-    );
-    return;
-  }
-
-  try {
-    const listData = {
-      listTitle: listTitle.value,
-      boardId: boardComputed.value.board.boardId,
-    };
-    const accessToken = localStorage.getItem("token");
-
-    const response = await createList(listData, accessToken);
-    boardStore.addList(response);
-
-    isFormVisible.value = false;
-    listTitle.value = "";
-
-    socket.emit("createList", response);
-    getListData();
-  } catch (error) {
-    if (error.error && error.error.message) {
-      errorMessageList.value = [formatErrorMessage(error.error.message)];
-    } else {
-      errorMessageList.value = ["Unknown error occurred while creating list."];
-    }
-  }
+const handleAddedList = (value) => {
+  socket.emit("createList", value);
+  getListData();
 };
 
 const getListData = async () => {
@@ -332,50 +155,6 @@ const setupSocketListener = (boardId) => {
   });
 };
 
-const validateTaskTitle = (title) => {
-  const schema = Joi.object({
-    taskTitle: Joi.string().required().messages({
-      "string.empty": "Task title is not allowed to be empty",
-    }),
-  });
-  return schema.validate({ taskTitle: title }, { abortEarly: false });
-};
-
-const formTask = async (listId) => {
-  const { error } = validateTaskTitle(taskTitle.value);
-
-  if (error) {
-    errorMessageTask.value = error.details.map((detail) =>
-      detail.message.replace(/['"]/g, "")
-    );
-    return;
-  }
-
-  try {
-    const taskData = {
-      taskTitle: taskTitle.value,
-      listId: listId,
-    };
-
-    const accessToken = localStorage.getItem("token");
-
-    const response = await createTask(taskData, accessToken);
-    const createdTask = response.data;
-
-    boardStore.addTask({ listId, task: createdTask });
-
-    socket.emit("createTask", createdTask);
-
-    taskTitle.value = "";
-  } catch (error) {
-    if (error.error && error.error.message) {
-      errorMessageTask.value = [formatErrorMessage(error.error.message)];
-    } else {
-      errorMessageTask.value = ["Unknown error"];
-    }
-  }
-};
-
 const onEnd = async (event) => {
   try {
     const accessToken = localStorage.getItem("token");
@@ -415,32 +194,4 @@ onMounted(() => {
     getListData();
   }
 });
-
-const showForm = () => {
-  isFormVisible.value = true;
-};
-
-const cancelForm = () => {
-  isFormVisible.value = false;
-  listTitle.value = "";
-};
-
-const ButtonTask = (listId) => {
-  selectedListId.value = selectedListId.value === listId ? null : listId;
-  buttonTaskHidden.value = !buttonTaskHidden.value;
-};
-
-const close = () => {
-  taskTitle.value = "";
-  selectedListId.value = null;
-};
-
-const formatErrorMessage = (message) => {
-  if (message.includes("Validation error: list")) {
-    return "List name cannot be blank";
-  } else if (message.includes("Validation error: task")) {
-    return "Task name cannot be blank";
-  }
-  return "Create list failed: " + message;
-};
 </script>
