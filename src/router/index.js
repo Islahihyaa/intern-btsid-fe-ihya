@@ -85,6 +85,8 @@ router.beforeEach((to, from, next) => {
     localStorage.removeItem("token");
     localStorage.removeItem("userData");
     next("/login");
+  } else if (to.path === "/login" || to.path === "/register" && isAuthenticated()) {
+    next("/board");
   } else {
     next();
   }
