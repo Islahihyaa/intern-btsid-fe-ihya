@@ -58,7 +58,6 @@ const formShareBoard = async () => {
   const validationData = {
     collaboratorEmail: collaboratorEmail.value,
   };
-
   const schema = Joi.object({
     collaboratorEmail: Joi.string()
       .email({ tlds: { allow: false } })
@@ -68,9 +67,7 @@ const formShareBoard = async () => {
         "string.empty": "Email is not allowed to be empty",
       }),
   });
-
   const { error } = schema.validate(validationData, { abortEarly: false });
-
   if (error) {
     errorMessages.value = error.details.map((detail) =>
       detail.message.replace(/['"]/g, "")

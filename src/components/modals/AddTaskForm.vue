@@ -60,11 +60,7 @@ const props = defineProps({
   list: {
     type: Object,
     required: true,
-  },
-  // selectedListId: {
-  //   type: String,
-  //   required: true,
-  // },
+  }
 });
 
 const taskTitle = ref("");

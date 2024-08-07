@@ -35,9 +35,6 @@ export const useBoardStore = defineStore("board", {
         list.tasks.push(task);
       }
     },
-    addShareBoard(shareBoard) {
-      this.sharedBoards.push(shareBoard);
-    },
     setBoardAndSlug(boardId, boardSlug) {
       this.boardSelected = boardId;
       this.slugSelected = boardSlug;
@@ -58,7 +55,14 @@ export const useBoardStore = defineStore("board", {
         await getSharedBoard(accessToken);
 
         socket.on("notifiedCollaborator", (boardData) => {
-          this.sharedBoards.push(boardData);
+          const { boardId } = boardData.board;
+          const boardExist = this.sharedBoards.find(
+            (board) => board.board.boardId === boardId
+          );
+
+          if (!boardExist) {
+            this.sharedBoards.push(boardData);
+          }
         });
       } catch (error) {
         console.error("Error fetching boards:", error);

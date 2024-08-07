@@ -98,7 +98,6 @@ const handleList = async () => {
 
     emit("addedList", response);
   } catch (error) {
-    console.log(error);
     handleError(
       error,
       null,
