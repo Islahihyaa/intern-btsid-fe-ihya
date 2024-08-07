@@ -4,6 +4,7 @@ import ListPage from "@/components/ListPage.vue";
 import SharedList from "@/components/SharedList.vue";
 import { isAuthenticated } from "@/services/authService";
 import AuthPage from "@/views/auth/AuthPage.vue";
+import NotFound from "../components/layout/NotFound.vue";
 
 const routes = [
   {
@@ -66,6 +67,11 @@ const routes = [
       },
     ],
     meta: { requiresAuth: true },
+  },
+  {
+    path: "/:pathMatch(.*)*",
+    name: "NotFound",
+    component: NotFound,
   },
 ];
 
