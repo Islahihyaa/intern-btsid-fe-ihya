@@ -6,7 +6,7 @@ export const register = async (userData) => {
     const response = await axiosInstance.post("/users/register", userData);
     return response;
   } catch (error) {
-    const errorMessage = error.response?.data?.error.message || 'An unknown error occurred';
+    const errorMessage = error.response?.data?.error || 'An unknown error occurred';
     throw new Error(errorMessage);
   }
 };

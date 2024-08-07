@@ -50,7 +50,7 @@ import { getList } from "@/services/listService";
 import { updateTaskOrder } from "@/services/taskService";
 import { useBoardStore } from "@/store/board";
 import { ref, computed, onMounted, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import draggable from "vuedraggable";
 import socket from "@/socket";
 import ButtonAddList from "./ui/ButtonAddList.vue";
@@ -62,6 +62,7 @@ import { handleCreatedList, handleCreatedTask, handleUpdatedTask } from "./compo
 const errorMessageTask = ref([]);
 
 const route = useRoute();
+const router = useRouter()
 const boardStore = useBoardStore();
 const { $state, setBoardAndSlug } = boardStore;
 
@@ -95,12 +96,11 @@ const getListData = async () => {
     const boardId = route.params.boardId;
 
     const response = await getList(accessToken, boardId);
-    const lists = response.data;
-
     setupSocketListener(boardId);
 
-    $state.lists = lists;
+    $state.lists = response.data;
   } catch (error) {
+    router.push("/board")
     console.error("Error fetching boards:", error);
   }
 };

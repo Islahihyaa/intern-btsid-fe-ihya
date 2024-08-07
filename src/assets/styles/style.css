@@ -1,3 +1,7 @@
+span {
+    font-size: 16px;
+}
+
 .card-tilte {
     display: flex;
     justify-content: center;
@@ -32,10 +36,6 @@
     font-size: 1.2em;
     margin-left: 2px;
     cursor: pointer;
-}
-  
-span {
-    font-size: 16px;
 }
 
 .profile-card {

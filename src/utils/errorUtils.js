@@ -20,8 +20,10 @@ export const handleError = (
   if(setLoading) setLoading(false);
   resetMessage();
 
-  if (error.message) {
-    errorMessages.value = [formatErrorMessage(error.message)];
+  if (error.error) {
+    errorMessages.value = [formatErrorMessage(error.error)];
+  } else if (error) {
+    errorMessages.value = [formatErrorMessage(error)];
   } else if (error.error && error.error.message) {
     errorMessages.value = [formatErrorMessage(error.error.message)];
   } else {
@@ -31,9 +33,6 @@ export const handleError = (
 };
 
 export const formatErrorMessage = (message) => {
-  if (message.includes("Invalid email")) {
-    return "Invalid Email Format";
-  }
   return message;
 };
 
