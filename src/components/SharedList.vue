@@ -57,6 +57,7 @@ import ButtonAddList from "./ui/ButtonAddList.vue";
 import AddTaskForm from "./modals/AddTaskForm.vue";
 import AddListForm from "./modals/AddListForm.vue";
 import useFormVisibility from "./composable/useFormVisibility";
+import { handleCreatedList, handleCreatedTask, handleUpdatedTask } from "./composable/useSocketListener";
 
 const errorMessageTask = ref([]);
 
@@ -64,11 +65,7 @@ const route = useRoute();
 const boardStore = useBoardStore();
 const { $state, setBoardAndSlug } = boardStore;
 
-const {
-  isFormVisible: isFormVisible,
-  showForm,
-  cancelForm,
-} = useFormVisibility();
+const { isFormVisible: isFormVisible, showForm, cancelForm } = useFormVisibility();
 
 const boardComputed = computed(() => {
   return boardStore.$state.sharedBoards.find(
@@ -110,53 +107,9 @@ const getListData = async () => {
 
 const setupSocketListener = (boardId) => {
   socket.emit("join-board", boardId);
-
-  socket.on("createdList", (response) => {
-    const listExists = $state.lists.some(
-      (list) => list.listId === response.listId
-    );
-
-    if (!listExists) {
-      $state.lists.push(response);
-    }
-  });
-
-  socket.on("createdTask", (response) => {
-    const { listId, taskTitle, taskId } = response;
-
-    const listOnTask = $state.lists.find((list) => list.listId === listId);
-
-    if (listOnTask) {
-      const taskExists = listOnTask.tasks.some(
-        (task) => task.taskId === taskId
-      );
-      if (!taskExists) {
-        listOnTask.tasks.push({ taskId, taskTitle });
-      }
-    }
-  });
-
-  socket.on("updatedTask", (response) => {
-    const { oldListId, newListId, taskId, taskTitle } = response;
-
-    const oldList = $state.lists.find((list) => list.listId === oldListId);
-    if (oldList) {
-      const taskIndex = oldList.tasks.findIndex(
-        (task) => task.taskId === taskId
-      );
-      if (taskIndex > -1) {
-        oldList.tasks.splice(taskIndex, 1);
-      }
-    }
-
-    const newList = $state.lists.find((list) => list.listId === newListId);
-    if (newList) {
-      const taskExists = newList.tasks.some((task) => task.taskId === taskId);
-      if (!taskExists) {
-        newList.tasks.push({ taskId, taskTitle });
-      }
-    }
-  });
+  socket.on("createdList", (response) => handleCreatedList(response, $state.lists));
+  socket.on("createdTask", (response) => handleCreatedTask(response, $state.lists));
+  socket.on("updatedTask", (response) => handleUpdatedTask(response, $state.lists));
 };
 
 const onEnd = async (event) => {
