@@ -1,7 +1,7 @@
 <template>
-  <div class="navbar bg-base-300 border-b-2 border-slate-600">
+  <div class="navbar bg-base-300 border-b border-slate-600">
     <div class="flex-1 items-center">
-      <a class="btn btn-ghost text-2xl">
+      <a class="btn btn-ghost text-xl">
         <router-link to="/board"> Trello App </router-link>
       </a>
       <ButtonBoard @click="() => TogglePopup('buttonTriggers')"
@@ -14,9 +14,7 @@
     </div>
     <div class="flex-none gap-2">
       <div class="dropdown dropdown-end">
-        <div tabindex="0" role="button" class="btn btn-ghost">
-          <p>{{ userName }}</p>
-        </div>
+        <ButtonCancel tabindex="0" role="button">{{ userName }}</ButtonCancel>
         <ul
           tabindex="0"
           class="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52"
@@ -44,6 +42,7 @@ import CreateBoardForm from "../modals/CreateBoardForm.vue";
 import { logout } from "@/services/authService";
 import socket from "@/socket";
 import ButtonBoard from "@/components/ui/ButtonBoard.vue";
+import ButtonCancel from "../ui/ButtonCancel.vue";
 
 const userName = ref("");
 const errorMessage = ref("");
