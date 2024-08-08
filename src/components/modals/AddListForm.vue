@@ -58,7 +58,7 @@ const listTitle = ref("");
 const errorMessages = ref(null);
 const boardStore = useBoardStore();
 
-const emit = defineEmits(["addedList"]);
+const emit = defineEmits(["addedList", "hideForm"]);
 
 const handleList = async () => {
   resetMessage(null, errorMessages);
@@ -93,11 +93,12 @@ const handleList = async () => {
     const response = await createList(listData, accessToken);
 
     boardStore.addList(response);
-    props.isFormVisible = false;
+    emit("cancelForm");
     listTitle.value = "";
 
     emit("addedList", response);
   } catch (error) {
+    console.log(error)
     handleError(
       error,
       null,

@@ -9,7 +9,6 @@ export default function useFormVisibility() {
 
   const cancelForm = () => {
     isFormVisible.value = false;
-    listTitle.value = "";
   };
 
   return { isFormVisible, showForm, cancelForm };

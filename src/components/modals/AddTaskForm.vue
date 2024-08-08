@@ -72,6 +72,7 @@ const boardStore = useBoardStore();
 const emit = defineEmits(["addedTask"]);
 
 const handleCreateTask = async (listId) => {
+
   const validationData = {
     taskTitle: taskTitle.value,
   };
@@ -136,5 +137,6 @@ const ButtonTask = (listId) => {
 const close = () => {
   taskTitle.value = "";
   selectedListId.value = null;
+  errorMessages.value = [];
 };
 </script>

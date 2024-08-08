@@ -17,12 +17,12 @@ export const useBoardStore = defineStore("board", {
     addBoard(board) {
       this.boards.push(board);
     },
-    setBoardSelected(newValue) {
-      this.boardSelected = newValue;
-    },
-    setSlugSelected(newValue) {
-      this.slugSelected = newValue;
-    },
+    // setBoardSelected(newValue) {
+    //   this.boardSelected = newValue;
+    // },
+    // setSlugSelected(newValue) {
+    //   this.slugSelected = newValue;
+    // },
     addList(list) {
       if (!this.lists) {
         this.lists = [];

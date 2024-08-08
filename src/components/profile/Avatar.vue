@@ -7,7 +7,7 @@
 
 <script setup>
 import { computed, ref } from "vue";
-import { defineProps } from "vue";
+import {  } from "vue";
 import ProfileCard from "./ProfileCard.vue";
 
 const props = defineProps({

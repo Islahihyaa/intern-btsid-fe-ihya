@@ -15,11 +15,11 @@
 </template>
 
 <script setup>
-import { defineProps, onMounted } from "vue";
+import { onMounted } from "vue";
 import Navbar from "@/components/layout/Navbar.vue";
 import Sidebar from "@/components/layout/Sidebar.vue";
 import Menu from "@/components/layout/Menu.vue";
-import { defineEmits } from "vue";
+import {  } from "vue";
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import socket from "@/socket";
