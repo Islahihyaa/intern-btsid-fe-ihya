@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex justify-center items-center min-h-screen bg-[url('/bg-auth.jpg')] bg-cover"
+    class="flex justify-center items-center min-h-screen custom-bg"
   >
     <div
       class="w-full max-w-md p-8 rounded-lg shadow-md bg-white bg-clip-padding backdrop-filter backdrop-blur-xl bg-opacity-20 border border-gray-100"
