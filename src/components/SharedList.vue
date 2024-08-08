@@ -64,7 +64,7 @@ const errorMessageTask = ref([]);
 const route = useRoute();
 const router = useRouter()
 const boardStore = useBoardStore();
-const { $state, setBoardAndSlug } = boardStore;
+const { $state, setBoardSelected } = boardStore;
 
 const { isFormVisible: isFormVisible, showForm, cancelForm } = useFormVisibility();
 
@@ -139,7 +139,7 @@ const onEnd = async (event) => {
 watch(route, (newRoute) => {
   const boardId = newRoute.params.boardId;
   if (boardId) {
-    setBoardAndSlug($state.boardSelected, boardId);
+    setBoardSelected(boardId);
     getListData();
   }
 });
@@ -147,7 +147,7 @@ watch(route, (newRoute) => {
 onMounted(() => {
   const boardId = route.params.boardId;
   if (boardId) {
-    setBoardAndSlug($state.boardSelected, boardId);
+    setBoardSelected(boardId);
     getListData();
   }
 });

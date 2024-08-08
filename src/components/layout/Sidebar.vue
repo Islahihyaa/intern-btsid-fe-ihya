@@ -11,7 +11,7 @@
           <li v-for="board in $state.boards" :key="board.boardId" class="m-2">
             <router-link :to="{ path: `/board/${board.boardId}` }">
               <div
-                @click="showDetailBoard(board.boardId, board.boardSlug)"
+                @click="showDetailBoard(board.boardId)"
                 class="m-2"
               >
                 <div class="text-md">
@@ -38,8 +38,7 @@
               <div
                 @click="
                   showDetailBoard(
-                    sharedBoard.board.boardId,
-                    sharedBoard.board.boardSlug
+                    sharedBoard.board.boardId
                   )
                 "
                 class="m-2"
@@ -60,11 +59,12 @@
 import { onMounted } from "vue";
 import { useBoardStore } from "@/store/board";
 
-const { $state, setBoardAndSlug } = useBoardStore();
+const { $state, setBoardSelected } = useBoardStore();
 const boardStore = useBoardStore();
 
-const showDetailBoard = (boardId, boardSlug) => {
-  setBoardAndSlug(boardId, boardSlug);
+const showDetailBoard = (boardId) => {
+  console.log('asd',boardId);
+  setBoardSelected(boardId);
 };
 
 onMounted(() => {

@@ -9,7 +9,6 @@ export const useBoardStore = defineStore("board", {
     tasks: [],
     sharedBoards: [],
     boardSelected: "",
-    slugSelected: "",
     drags: [],
   }),
 
@@ -17,12 +16,9 @@ export const useBoardStore = defineStore("board", {
     addBoard(board) {
       this.boards.push(board);
     },
-    // setBoardSelected(newValue) {
-    //   this.boardSelected = newValue;
-    // },
-    // setSlugSelected(newValue) {
-    //   this.slugSelected = newValue;
-    // },
+    setBoardSelected(newValue) {
+      this.boardSelected = newValue;
+    },
     addList(list) {
       if (!this.lists) {
         this.lists = [];
@@ -34,10 +30,6 @@ export const useBoardStore = defineStore("board", {
       if (list) {
         list.tasks.push(task);
       }
-    },
-    setBoardAndSlug(boardId, boardSlug) {
-      this.boardSelected = boardId;
-      this.slugSelected = boardSlug;
     },
     async getBoardData() {
       try {
