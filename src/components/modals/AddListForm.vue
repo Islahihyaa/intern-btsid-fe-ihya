@@ -22,7 +22,7 @@
           />
         </div>
         <div class="card-actions justify-end">
-          <ButtonCancel @click.prevent="$emit('cancelForm')"
+          <ButtonCancel @click="cancelForm()"
             >Cancel</ButtonCancel
           >
           <ButtonSubmit class="font-medium text-base">Create List</ButtonSubmit>
@@ -58,7 +58,7 @@ const listTitle = ref("");
 const errorMessages = ref(null);
 const boardStore = useBoardStore();
 
-const emit = defineEmits(["addedList", "hideForm"]);
+const emit = defineEmits(["addedList", "cancelForm"]);
 
 const handleList = async () => {
   resetMessage(null, errorMessages);
@@ -98,7 +98,6 @@ const handleList = async () => {
 
     emit("addedList", response);
   } catch (error) {
-    console.log(error)
     handleError(
       error,
       null,
@@ -108,4 +107,11 @@ const handleList = async () => {
     );
   }
 };
+
+const cancelForm = () => {
+  emit("cancelForm");
+  resetMessage(null, errorMessages);
+  resetForm(listTitle);
+};
+
 </script>
