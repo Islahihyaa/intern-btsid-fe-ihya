@@ -1,5 +1,5 @@
 <template>
-  <div @click="toggleProfileCard" class="avatar mr-4">
+  <div @click="toggleProfileCard" class="avatar">
     <span class="text-center">{{ initials }}</span>
     <ProfileCard v-if="showProfile" :userName="props.userName" />
   </div>
@@ -7,7 +7,6 @@
 
 <script setup>
 import { computed, ref } from "vue";
-import {  } from "vue";
 import ProfileCard from "./ProfileCard.vue";
 
 const props = defineProps({

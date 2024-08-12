@@ -6,22 +6,25 @@
       <div class="text-lg text-white">
         {{ boardComputed ? boardComputed.board.boardTitle : "" }}
       </div>
-      <div class="flex items-center">
-        <div v-if="boardComputed">
-          <Avatar :userName="boardComputed.board.author.userName" />
-        </div>
-        <div v-if="boardComputed && boardComputed.collaborators" class="mr-4">
-          <ul class="flex items-center">
-            <li
-              v-for="collaborator in collaboratorsUserNames"
-              :key="collaborator.userId"
-            >
-              <Avatar :userName="collaborator.userName" />
-            </li>
-          </ul>
+      <div class="flex items-center gap-4">
+        <div class="flex items-center">
+          <div v-if="boardComputed">
+            <Avatar :userName="boardComputed.board.author.userName" />
+          </div>
+          <div v-if="boardComputed && boardComputed.collaborators">
+            <ul class="flex items-center">
+              <li
+                v-for="collaborator in collaboratorsUserNames"
+                :key="collaborator.userId"
+              >
+                <Avatar :userName="collaborator.userName" />
+              </li>
+            </ul>
+          </div>
         </div>
         <ButtonBoard @click="() => TogglePopup('buttonTriggers')"
-          >Share</ButtonBoard>
+          >Share</ButtonBoard
+        >
       </div>
     </div>
   </div>
@@ -51,6 +54,11 @@ const TogglePopup = (trigger) => {
 
 const collaboratorsUserNames = computed(() => {
   const board = props.boardComputed;
-  return board ? board.collaborators.map(c => ({ userId: c.userId, userName: c.userName })) : [];
+  return board
+    ? board.collaborators.map((c) => ({
+        userId: c.userId,
+        userName: c.userName,
+      }))
+    : [];
 });
 </script>
