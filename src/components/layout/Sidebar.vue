@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sidebar bg-base-200 border-r-2 border-slate-600 overflow-y-auto h-screen"
+    class="sidebar bg-base-200 border-r-2 border-slate-600 overflow-y-auto h-screen w-72"
   >
     <div class="flex flex-col">
       <ul class="menu w-full flex-1">

@@ -1,6 +1,6 @@
 <template>
-  <div @click="toggleProfileCard" class="avatar">
-    <span>{{ initials }}</span>
+  <div @click="toggleProfileCard" class="avatar mr-4">
+    <span class="text-center">{{ initials }}</span>
     <ProfileCard v-if="showProfile" :userName="props.userName" />
   </div>
 </template>
